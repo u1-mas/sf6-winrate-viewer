@@ -1,7 +1,8 @@
 {
   "tasks": {
     "create_data": "deno run --unstable-ffi --unstable-kv -A scripts/create_data.ts",
-    "dev_server": "deno run --watch=static/,routes/ -A --unstable-kv server/dev.ts"
+    "dev_server": "deno run --watch=static/,routes/ -A --unstable-kv server/dev.ts",
+    "build": "deno run -A --unstable-kv server/dev.ts build"
   },
   "imports": {
     "@deno-lib/logger": "jsr:@deno-lib/logger@^1.1.6",
