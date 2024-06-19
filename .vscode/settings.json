@@ -1,0 +1,18 @@
+{
+  "deno.enable": true,
+  "deno.cacheOnSave": true,
+  "deno.config": "./deno.jsonc",
+  "deno.suggest.imports.autoDiscover": false,
+  "deno.lint": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "denoland.vscode-deno",
+  "[json]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+  }
+}

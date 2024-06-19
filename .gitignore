@@ -1,0 +1,5 @@
+winrates/
+bin/
+database/
+logs/
+.env
