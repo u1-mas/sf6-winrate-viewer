@@ -11,6 +11,4 @@ import manifest from "./fresh.gen.ts";
 import config from "./fresh.config.ts";
 import { createData } from "../scripts/create_data.ts";
 
-Deno.cron("Cron sf6-data every date", "0 0 * * *", createData);
-
 await start(manifest, config);
