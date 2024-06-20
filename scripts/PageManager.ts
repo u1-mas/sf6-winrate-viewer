@@ -39,6 +39,17 @@ export class PageManager {
     await this.page.goto(url, { "waitUntil": "networkidle2" });
     await this.page.waitForNetworkIdle();
 
+    // cookieボタンがあったら押す
+    try {
+      await this.page.waitForSelector(
+        "button#CybotCookiebotDialogBodyButtonDecline",
+      );
+      await this.page.click("button#CybotCookiebotDialogBodyButtonDecline");
+      await this.page.waitForNetworkIdle();
+    } catch (_) {
+      console.log("cookie button is missing. skip.");
+    }
+
     await this.screenshotManager.takeScreenShot();
     await this.page.waitForSelector("input[name=email]");
 
@@ -51,12 +62,16 @@ export class PageManager {
     await this.page.waitForSelector("aside[class^=header_user_nav]");
     await this.page.waitForNetworkIdle();
 
-    // cookie許可しないボタンを押す
-    await this.page.waitForSelector(
-      "button#CybotCookiebotDialogBodyButtonDecline",
-    );
-    await this.page.click("button#CybotCookiebotDialogBodyButtonDecline");
-    await this.page.waitForNetworkIdle();
+    // cookieボタンがあったら押す
+    try {
+      await this.page.waitForSelector(
+        "button#CybotCookiebotDialogBodyButtonDecline",
+      );
+      await this.page.click("button#CybotCookiebotDialogBodyButtonDecline");
+      await this.page.waitForNetworkIdle();
+    } catch (_) {
+      console.log("cookie button is missing. skip.");
+    }
 
     await this.page.click("aside[class^=header_user_nav] dt");
     await this.page.waitForSelector("dl[class^=header_disp]");
