@@ -19,9 +19,14 @@ export class PageManager {
   }
 
   static async build() {
-    const browser = await puppeteer.launch({
-      headless: false,
-    });
+    let browser;
+    if (Deno.env.get("CI") === "true") {
+      browser = await puppeteer.launch();
+    } else {
+      browser = await puppeteer.launch({
+        headless: false,
+      });
+    }
     const page = await browser.newPage();
 
     return new PageManager(page);
