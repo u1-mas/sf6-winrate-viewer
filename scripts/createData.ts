@@ -5,9 +5,15 @@ import { WinrateData } from "./WinrateData.ts";
 
 const retries = 3;
 export const createWinrateData = async () => {
-  const email = Deno.env.get("EMAIL") || "sample@example.com";
-  const password = Deno.env.get("PASSWORD") || "dummy_password";
-  console.log({ email });
+  const email = Deno.env.get("EMAIL");
+  const password = Deno.env.get("PASSWORD");
+  if (
+    email === undefined || email === "" || password === undefined ||
+    password === ""
+  ) {
+    console.log("undefined email or password. exit.");
+    return;
+  }
 
   for (let index = 0; index < retries; index++) {
     try {

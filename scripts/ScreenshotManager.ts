@@ -10,8 +10,13 @@ export class ScreenshotManager {
         Deno.mkdirSync(this.snapshotDirPath, { recursive: true });
     }
 
-    async takeScreenShot() {
-        const filepath = join(this.snapshotDirPath, `${this.ssNumber++}.png`);
+    async takeScreenShot(prefix: string = "") {
+        const filepath = join(
+            this.snapshotDirPath,
+            prefix === ""
+                ? `${this.ssNumber++}.png`
+                : `${this.ssNumber++}_${prefix}.png`,
+        );
         await this.page.screenshot({
             fullPage: true,
             path: resolve(filepath),

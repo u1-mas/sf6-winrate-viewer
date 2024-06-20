@@ -42,18 +42,15 @@ export class PageManager {
     await this.page.goto(url, { "waitUntil": "networkidle2" });
     await this.page.waitForNetworkIdle();
 
+    await this.screenshotManager.takeScreenShot("start_page");
     // cookieボタンがあったら押す
     try {
       await this.page.waitForSelector(
         "button#CybotCookiebotDialogBodyButtonDecline",
       );
-      Deno.writeTextFileSync(
-        "snapshots/temp_0.html",
-        await this.page.content(),
-      );
+      await this.screenshotManager.takeScreenShot("check_cookie_1");
+
       await this.page.click("button#CybotCookiebotDialogBodyButtonDecline");
-      await this.page.waitForNetworkIdle();
-      await this.screenshotManager.takeScreenShot();
     } catch (_) {
       console.log("cookie button is missing. skip.");
     }
@@ -64,23 +61,26 @@ export class PageManager {
       await this.page.select("select[name=birthYear]", "1999");
       await this.page.select("select[name=birthMonth]", "10");
       await this.page.select("select[name=birthDay]", "22");
+      await this.screenshotManager.takeScreenShot("birthday_check");
+
       await this.page.click("button[name=submit]");
-      await this.page.waitForNetworkIdle();
-      await this.screenshotManager.takeScreenShot();
     } catch (_) {
       console.log("nothing birthday check. skip.");
     }
 
-    await this.screenshotManager.takeScreenShot();
     await this.page.waitForSelector("input[name=email]");
+    await this.screenshotManager.takeScreenShot("login_page");
 
-    await this.screenshotManager.takeScreenShot();
     await this.page.type("input[name=email]", email);
     await this.page.type("input[name=password]", password);
+    await this.screenshotManager.takeScreenShot("input_user_data");
 
     await this.page.click("button[name=submit]");
+    await this.page.waitForNetworkIdle();
 
+    await this.screenshotManager.takeScreenShot("main_page");
     await this.page.waitForSelector("aside[class^=header_user_nav]");
+
     await this.page.waitForNetworkIdle();
 
     // cookieボタンがあったら押す
@@ -88,6 +88,7 @@ export class PageManager {
       await this.page.waitForSelector(
         "button#CybotCookiebotDialogBodyButtonDecline",
       );
+      await this.screenshotManager.takeScreenShot("check_cookie_2");
       await this.page.click("button#CybotCookiebotDialogBodyButtonDecline");
       await this.page.waitForNetworkIdle();
     } catch (_) {
@@ -102,7 +103,8 @@ export class PageManager {
     await this.page.click(
       "div[class^=profile_nav_inner] > ul > li:nth-child(2)",
     );
-
+    await this.page.waitForNetworkIdle();
+    await this.screenshotManager.takeScreenShot("transition_playpage");
     console.log("complete transition playpage.");
   }
 
