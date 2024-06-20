@@ -3,7 +3,7 @@
 import { PageManager } from "./PageManager.ts";
 import { WinrateData } from "./WinrateData.ts";
 
-const retries = 1;
+const retries = 3;
 export const createWinrateData = async () => {
   const email = Deno.env.get("EMAIL");
   const password = Deno.env.get("PASSWORD");
