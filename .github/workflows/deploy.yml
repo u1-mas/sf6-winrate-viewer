@@ -34,6 +34,6 @@ jobs:
       - name: Upload to Deno Deploy
         uses: denoland/deployctl@v1
         with:
-          project: "sf6-winrate-29"
+          project: "sf6-winrate-viewer"
           entrypoint: "main.ts"
           root: "."
