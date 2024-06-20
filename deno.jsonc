@@ -2,7 +2,8 @@
   "tasks": {
     "create_data": "deno run --unstable-ffi --unstable-kv -A scripts/create_data.ts",
     "dev_server": "deno run --watch=static/,routes/ -A --unstable-kv dev.ts",
-    "build": "deno run -A --unstable-kv dev.ts build"
+    "build": "deno run -A --unstable-kv dev.ts build",
+    "re-lock": "deno cache -r --lock-write dev.ts main.ts scripts/create_data.ts"
   },
   "imports": {
     "$fresh/": "https://deno.land/x/fresh@1.6.8/",
@@ -34,6 +35,5 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
-  },
-  "lock": false
+  }
 }
