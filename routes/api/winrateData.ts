@@ -1,13 +1,6 @@
 import { FreshContext } from "$fresh/server.ts";
+import { WinrateDataByOppronentCharactor } from "../../scripts/WinrateData.ts";
 
-export type WinrateData = {
-  [date: string]: {
-    [charactor: string]: {
-      game: number;
-      winrate: number;
-    };
-  };
-};
 export const handler = async (
   _req: Request,
   ctx: FreshContext,
@@ -16,14 +9,17 @@ export const handler = async (
   const act = ctx.url.searchParams.get("act")!;
   const charactor = ctx.url.searchParams.get("charactor")!;
 
-  console.log({ charactor, act });
-  const list = kv.list({ prefix: [charactor, act] });
-  let d: WinrateData = {};
+  const list = kv.list<WinrateDataByOppronentCharactor>({
+    prefix: [charactor, act],
+  });
+  let d: {
+    [dateString: string]: WinrateDataByOppronentCharactor;
+  } = {};
   for await (const data of list) {
     const date = data.key[2].toString();
     d = {
       ...d,
-      [date]: data.value as any,
+      [date]: data.value,
     };
   }
   return new Response(JSON.stringify(d));

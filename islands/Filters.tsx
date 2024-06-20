@@ -1,14 +1,16 @@
 import { effect, Signal, useSignal } from "@preact/signals";
 import { useEffect } from "preact/hooks";
 import { fetchWinrateData } from "../components/fetchWinrateData.tsx";
-import { WinrateData } from "../routes/api/winrateData.ts";
 import { Switch } from "@headlessui/react";
+import { WinrateDataByOppronentCharactor } from "../scripts/WinrateData.ts";
 
 type FiltersProps = {
   charactor: Signal<string>;
   act: Signal<string>;
   withAll: Signal<boolean>;
-  winrateData: Signal<WinrateData>;
+  winrateData: Signal<{
+    [dateString: string]: WinrateDataByOppronentCharactor;
+  }>;
 };
 export default function Filters(
   { charactor, act, winrateData, withAll }: FiltersProps,
@@ -24,16 +26,15 @@ export default function Filters(
       const resp = await fetch("http://localhost:8000/api/charactor");
       const json: string[] = await resp.json();
       charactors.value = json.sort();
-      charactor.value = charactors.value[0];
     })();
   }, [charactors]);
 
   const acts = [
-    "act:0",
-    "act:1",
-    "act:2",
-    "act:3",
     "act:4",
+    "act:3",
+    "act:2",
+    "act:1",
+    "act:0",
     "累計",
   ];
   act.value = acts[0];
@@ -51,6 +52,7 @@ export default function Filters(
             charactor.value = e.currentTarget.value;
             console.log(`charactor change: ${charactor.value}`);
           }}
+          value={charactor.value}
         >
           {charactors.value.map((hero) => (
             <option
@@ -72,16 +74,6 @@ export default function Filters(
           {acts.map((a) => <option value={a}>{a}</option>)}
         </select>
       </div>
-      <Switch
-        checked={withAll.value}
-        onChange={() => {
-          withAll.value = !withAll.value;
-          console.log(withAll.value);
-        }}
-        className="group inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition data-[checked]:bg-blue-600"
-      >
-        <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
-      </Switch>
     </>
   );
 }

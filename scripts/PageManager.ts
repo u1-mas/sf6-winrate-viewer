@@ -1,16 +1,18 @@
 import puppeteer, { Page } from "puppeteer";
-import { WinrateData } from "./WinrateData.ts";
+import {
+  WinrateData,
+  WinrateDataByAct,
+  WinrateDataByOppronentCharactor,
+  WinrateDataByPlayerCharactor,
+} from "./WinrateData.ts";
 
 const url =
   "https://www.streetfighter.com/6/buckler/ja-jp/auth/loginep?redirect_url=/";
 
 export class PageManager {
   page: Page;
-  tempDirPath: string;
   constructor(page: Page) {
     this.page = page;
-    this.tempDirPath = Deno.makeTempDirSync({ prefix: "sf6-winrate_" });
-    console.log(this.tempDirPath);
   }
 
   static async build(email: string, password: string) {
@@ -52,16 +54,17 @@ export class PageManager {
     await this.page.browser().close();
   }
 
-  async checkWinrateByCharactor() {
+  async createWinrateData(): Promise<WinrateData> {
     await this.page.waitForSelector(playNavClass);
     await this.page.click(`${playNavClass} > li:nth-child(5)`); // キャラクター別対戦数
     await this.page.waitForSelector(
       "article[class^=winning_rate_winning_rate]",
     );
 
+    // 0: ACT, 1: mode
     const filters = await this.page.$$(
       "aside[class^=filter_nav_filter_nav] select",
-    ); // 0: ACT, 1: mode
+    );
     await filters[1].select("2"); // ランクマッチ
     const acts: { value: string; text: string }[] = await filters[0].$$eval(
       "option",
@@ -76,7 +79,6 @@ export class PageManager {
       "div[class^=winning_rate_inner] > ul > li",
       (nodes) => nodes.length,
     );
-    console.log({ charactorNumber });
     const changeCharactor = async (cN: number) => {
       await this.page.click("div[class^=winning_rate_select_character]");
       await this.page.waitForNetworkIdle();
@@ -90,15 +92,19 @@ export class PageManager {
       await this.page.click("button[class^=modal_search__btn]");
       await this.page.waitForNetworkIdle();
     };
+
+    let byPlayerCharactor: WinrateDataByPlayerCharactor = {};
     for (let idx = 0; idx < charactorNumber; idx++) {
       await this.page.waitForNetworkIdle();
       await changeCharactor(idx);
-      let wrByCharactor = {};
+
       const playerCharactor = (await this.page.$eval(
         "span[class^=winning_rate_name]",
         (node) => node.innerText,
       ) as string).toLowerCase().replaceAll(" ", "_");
       console.log({ playerCharactor });
+
+      let byAct: WinrateDataByAct = {};
       for (const act of acts) {
         console.log(act);
         await filters[0].select(act.value);
@@ -106,7 +112,7 @@ export class PageManager {
         const winrates = await this.page.$$(
           "div[class^=winning_rate_inner] > ul > li",
         );
-        let wrByAct = {};
+        let byOpponentCharactor: WinrateDataByOppronentCharactor = {};
         for await (const winrateByCharactor of winrates) {
           const opponentCharactor = (await winrateByCharactor.$eval(
             "p[class^=winning_rate_name]",
@@ -121,37 +127,30 @@ export class PageManager {
               "div[class^=winning_rate_graf] > p[class^=winning_rate_number] > span",
               (node) => node.innerText,
             );
-          wrByAct = {
-            ...wrByAct,
+          byOpponentCharactor = {
+            ...byOpponentCharactor,
             [opponentCharactor]: {
               game: parseInt(game.replace("戦", "")),
               winrate: parseFloat(winrate),
             },
           };
         }
-        wrByCharactor = {
-          ...wrByCharactor,
-          [act.text.toLowerCase()]: wrByAct,
+
+        byAct = {
+          ...byAct,
+          [act.text.toLowerCase()]: byOpponentCharactor,
         };
       }
-      const writeData: WinrateData = {
-        byAct: wrByCharactor,
-        dateString: new Date().toISOString().split("T")[0],
-        playerCharactor: playerCharactor.toLowerCase(),
+      byPlayerCharactor = {
+        ...byPlayerCharactor,
+        [playerCharactor]: byAct,
       };
-      Deno.writeTextFileSync(
-        `${this.tempDirPath}/winrate_${
-          playerCharactor.replaceAll(" ", "_") // DEE JAY -> DEE_JAY
-            .replaceAll(".", "_") // E.HONDA -> E_HONDA
-        }_${writeData.dateString}.json`,
-        JSON.stringify(writeData, null, 2),
-        {
-          createNew: true,
-        },
-      );
     }
 
-    console.log("Write winrate json");
+    const dateString = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    return {
+      [dateString]: byPlayerCharactor,
+    };
   }
 }
 

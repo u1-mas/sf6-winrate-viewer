@@ -3,28 +3,28 @@
 import { saveToDatabase } from "./DataManager.ts";
 import { PageManager } from "./PageManager.ts";
 
-const email = Deno.env.get("EMAIL")!;
-const password = Deno.env.get("PASSWORD")!;
-let dirPath = "";
 const retries = 3;
-export const createData = async () => {
+const createWinrateData = async () => {
+  const email = Deno.env.get("EMAIL")!;
+  const password = Deno.env.get("PASSWORD")!;
+
   for (let index = 0; index < retries; index++) {
     try {
       // webからjsonにする
       const manager = await PageManager.build(email, password);
-      await manager.checkWinrateByCharactor();
-      dirPath = manager.tempDirPath;
-      await manager.close();
-      break;
+      return await manager.createWinrateData();
     } catch (err) {
       console.log("Throw error. Retry: ", index);
-      if (index === retries) {
+      if (index === retries - 1) {
         throw err;
       }
     }
   }
-
-  // jsonをDBにいれる
-  await saveToDatabase(dirPath);
-  Deno.removeSync(dirPath, { recursive: true });
+};
+export const createData = async () => {
+  const winrateData = await createWinrateData();
+  if (winrateData === undefined) {
+    return;
+  }
+  await saveToDatabase(winrateData);
 };

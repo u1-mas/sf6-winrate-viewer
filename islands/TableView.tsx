@@ -1,8 +1,10 @@
-import { WinrateData } from "../routes/api/winrateData.ts";
 import { Signal } from "@preact/signals";
+import { WinrateDataByOppronentCharactor } from "../scripts/WinrateData.ts";
 
 type TableViewProps = {
-  winrateData: Signal<WinrateData>;
+  winrateData: Signal<{
+    [dateString: string]: WinrateDataByOppronentCharactor;
+  }>;
   withAll: Signal<boolean>;
 };
 export default function TableView({ winrateData, withAll }: TableViewProps) {

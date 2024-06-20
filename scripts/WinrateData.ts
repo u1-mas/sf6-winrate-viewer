@@ -2,16 +2,17 @@
  * WinrateDataByDate -> WinrateDataByAct -> WinrateDataByCharactor
  */
 export type WinrateData = {
-  dateString: string; // YYYY-DD-MM
-  playerCharactor: string;
-  byAct: {
-    [act: string]: {
-      [opponentCharactor: string]: {
-        game: number;
-        winrate: number;
+  [dateString: string]: {
+    [playerCharactor: string]: {
+      [act: string]: {
+        [opponentCharactor: string]: {
+          game: number;
+          winrate: number;
+        };
       };
     };
   };
 };
-export type WinrateDataByAct = WinrateData["byAct"][string];
-export type WinrateDataByCharactor = WinrateDataByAct["result"];
+export type WinrateDataByPlayerCharactor = WinrateData[string];
+export type WinrateDataByAct = WinrateDataByPlayerCharactor[string];
+export type WinrateDataByOppronentCharactor = WinrateDataByAct[string];

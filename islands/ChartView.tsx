@@ -1,9 +1,11 @@
 import { Signal } from "@preact/signals";
-import { WinrateData } from "../routes/api/winrateData.ts";
 import Chart from "./chart.tsx";
+import { WinrateDataByOppronentCharactor } from "../scripts/WinrateData.ts";
 
 type ViewerProps = {
-  winrateData: Signal<WinrateData>;
+  winrateData: Signal<{
+    [dateString: string]: WinrateDataByOppronentCharactor;
+  }>;
   withAll: Signal<boolean>;
 };
 export default function Viewer({ winrateData, withAll }: ViewerProps) {
@@ -12,8 +14,8 @@ export default function Viewer({ winrateData, withAll }: ViewerProps) {
   if (dates.length == 0) {
     return null;
   }
-  const byCharactor = byDate[dates[0]];
-  const charactors = Object.keys(byCharactor).sort();
+  const byOpponentCharactor = byDate[dates[0]];
+  const charactors = Object.keys(byOpponentCharactor).sort();
   const mode: "game" | "winrate" = "game";
   const datasets = charactors.map((c) => ({
     label: c,
@@ -21,14 +23,12 @@ export default function Viewer({ winrateData, withAll }: ViewerProps) {
   })).filter((d) => d.label !== "all" || !withAll);
 
   return (
-    <>
-      <Chart
-        type="line"
-        data={{
-          labels: dates,
-          datasets: datasets,
-        }}
-      />
-    </>
+    <Chart
+      type="line"
+      data={{
+        labels: dates,
+        datasets: datasets,
+      }}
+    />
   );
 }
