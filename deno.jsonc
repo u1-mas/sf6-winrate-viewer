@@ -1,24 +1,25 @@
 {
   "tasks": {
     "create_data": "deno run --unstable-ffi --unstable-kv -A scripts/create_data.ts",
-    "dev_server": "deno run --watch=static/,routes/ -A --unstable-kv server/dev.ts",
-    "build": "deno run -A --unstable-kv server/dev.ts build"
+    "dev_server": "deno run --watch=static/,routes/ -A --unstable-kv dev.ts",
+    "build": "deno run -A --unstable-kv dev.ts build"
   },
   "imports": {
-    "@deno-lib/logger": "jsr:@deno-lib/logger@^1.1.6",
-    "@std/io": "jsr:@std/io@^0.224.1",
-    "puppeteer": "https://deno.land/x/puppeteer_plus@0.24.0/mod.ts",
-    "$std/": "https://deno.land/std@0.216.0/",
     "$fresh/": "https://deno.land/x/fresh@1.6.8/",
     "$fresh_charts/": "https://deno.land/x/fresh_charts@0.3.1/",
-    "preact": "https://esm.sh/preact@10.19.6",
-    "preact/": "https://esm.sh/preact@10.19.6/",
+    "$std/": "https://deno.land/std@0.216.0/",
+    "@deno-lib/logger": "jsr:@deno-lib/logger@^1.1.6",
+    "@headlessui/react": "https://esm.sh/v135/@headlessui/react@1.6.6?alias=react:preact/compat,react-dom:preact/compat,@types/react:preact/compat&deps=preact@10.19.6",
     "@preact/signals": "https://esm.sh/*@preact/signals@1.2.2",
     "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.5.1",
+    "@std/dotenv": "jsr:@std/dotenv@^0.224.0",
+    "@std/io": "jsr:@std/io@^0.224.1",
+    "preact": "https://esm.sh/preact@10.19.6",
+    "preact/": "https://esm.sh/preact@10.19.6/",
+    "puppeteer": "https://deno.land/x/puppeteer_plus@0.24.0/mod.ts",
     "tailwindcss": "npm:tailwindcss@3.4.1",
     "tailwindcss/": "npm:/tailwindcss@3.4.1/",
-    "tailwindcss/plugin": "npm:/tailwindcss@3.4.1/plugin.js",
-    "@headlessui/react": "https://esm.sh/v135/@headlessui/react@1.6.6?alias=react:preact/compat,react-dom:preact/compat,@types/react:preact/compat&deps=preact@10.19.6"
+    "tailwindcss/plugin": "npm:/tailwindcss@3.4.1/plugin.js"
   },
   "lint": {
     "exclude": ["winrates/", "fresh.gen.ts"],
