@@ -3,6 +3,7 @@ import Filters from "../islands/Filters.tsx";
 import TableView from "../islands/TableView.tsx";
 import Viewer from "../islands/ChartView.tsx";
 import { WinrateDataByOppronentCharactor } from "../scripts/WinrateData.ts";
+import UpdateHistory from "../islands/UpdateHistory.tsx";
 
 export default function Home() {
   const charactor = useSignal("luke");
@@ -19,6 +20,7 @@ export default function Home() {
           <code class="mx-2">./routes/index.tsx</code> file, and refresh.
         </p>
 
+        <UpdateHistory />
         <Filters
           winrateData={winrateData}
           charactor={charactor}

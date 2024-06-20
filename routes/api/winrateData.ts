@@ -1,11 +1,12 @@
 import { FreshContext } from "$fresh/server.ts";
 import { WinrateDataByOppronentCharactor } from "../../scripts/WinrateData.ts";
+import { openAppKv } from "../../services/kv.ts";
 
 export const handler = async (
   _req: Request,
   ctx: FreshContext,
 ): Promise<Response> => {
-  const kv = await Deno.openKv("database/kv");
+  const kv = await openAppKv();
   const act = ctx.url.searchParams.get("act")!;
   const charactor = ctx.url.searchParams.get("charactor")!;
 

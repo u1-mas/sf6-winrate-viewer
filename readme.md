@@ -1,6 +1,12 @@
+# sf6-winrate-viewer
+
+deno deployを使用しています。
+
+- https://sf6-winrate-viewer.deno.dev/
+
 ## Setup
 
-.env に EMAIL, PASSWORD を指定する
+.env に EMAIL, PASSWORD, DENO_KV_ACCESS_TOKEN を指定する
 
 - 平文なので要注意
 

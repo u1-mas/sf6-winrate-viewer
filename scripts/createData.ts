@@ -36,17 +36,8 @@ export const createWinrateData = async () => {
   }
 };
 
-const initDatabase = async () => {
-  if (Deno.env.get("CI") === "true") {
-    return await Deno.openKv(Deno.env.get("DENO_KV_URL"));
-  } else {
-    Deno.mkdirSync("database", { recursive: true });
-    return await Deno.openKv("database/kv");
-  }
-};
-let kv: Deno.Kv;
 export const saveToDatabase = async (winrateData: WinrateData) => {
-  kv = await initDatabase();
+  const kv = await Deno.openKv(Deno.env.get("DENO_KV_URL"));
   const date = Object.keys(winrateData)[0];
   const byPlayerCharactor = winrateData[date];
   const playerCharactors = Object.keys(byPlayerCharactor);
@@ -58,6 +49,7 @@ export const saveToDatabase = async (winrateData: WinrateData) => {
       await kv.set([playerCharactor, act.toLowerCase(), date], byOpponents);
     }
   }
+  console.log(await kv.set(["update_history"], new Date()));
 };
 
 export const createData = async () => {

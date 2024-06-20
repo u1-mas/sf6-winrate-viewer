@@ -1,7 +1,6 @@
 import { effect, Signal, useSignal } from "@preact/signals";
 import { useEffect } from "preact/hooks";
 import { fetchWinrateData } from "../components/fetchWinrateData.tsx";
-import { Switch } from "@headlessui/react";
 import { WinrateDataByOppronentCharactor } from "../scripts/WinrateData.ts";
 
 type FiltersProps = {
@@ -13,7 +12,7 @@ type FiltersProps = {
   }>;
 };
 export default function Filters(
-  { charactor, act, winrateData, withAll }: FiltersProps,
+  { charactor, act, winrateData }: FiltersProps,
 ) {
   effect(async () => {
     await fetchWinrateData(winrateData, charactor.value, act.value);
