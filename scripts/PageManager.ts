@@ -21,7 +21,9 @@ export class PageManager {
   static async build() {
     let browser;
     if (Deno.env.get("CI") === "true") {
-      browser = await puppeteer.launch();
+      browser = await puppeteer.launch({
+        slowMo: 100,
+      });
     } else {
       browser = await puppeteer.launch({
         headless: false,
