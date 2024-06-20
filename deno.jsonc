@@ -22,7 +22,7 @@
     "tailwindcss/plugin": "npm:/tailwindcss@3.4.1/plugin.js"
   },
   "lint": {
-    "exclude": ["winrates/", "fresh.gen.ts"],
+    "exclude": ["winrates/", "fresh.gen.ts", "_fresh"],
     "rules": {
       "tags": [
         "fresh",
