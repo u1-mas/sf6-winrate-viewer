@@ -24,7 +24,7 @@ export const createWinrateData = async () => {
 };
 
 const initDatabase = async () => {
-  if (Deno.env.get("CI") == "true") {
+  if (Deno.env.get("CI") === "true") {
     return await Deno.openKv(Deno.env.get("DENO_KV_URL"));
   } else {
     Deno.mkdirSync("database", { recursive: true });
