@@ -6,7 +6,7 @@ export default function UpdateHistory() {
   useEffect(() => {
     (async () => {
       console.log("fetch update history.");
-      const resp = await fetch("http://localhost:8000/api/updateHistory");
+      const resp = await fetch("/api/updateHistory");
       const json: Date = await resp.json();
       history.value = json;
     })();

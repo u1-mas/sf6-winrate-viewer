@@ -5,7 +5,7 @@
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
 import * as $_middleware from "./routes/_middleware.ts";
-import * as $api_charactor from "./routes/api/charactor.ts";
+import * as $api_charactors from "./routes/api/charactors.ts";
 import * as $api_updateHistory from "./routes/api/updateHistory.ts";
 import * as $api_winrateData from "./routes/api/winrateData.ts";
 import * as $index from "./routes/index.tsx";
@@ -21,7 +21,7 @@ const manifest = {
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
     "./routes/_middleware.ts": $_middleware,
-    "./routes/api/charactor.ts": $api_charactor,
+    "./routes/api/charactors.ts": $api_charactors,
     "./routes/api/updateHistory.ts": $api_updateHistory,
     "./routes/api/winrateData.ts": $api_winrateData,
     "./routes/index.tsx": $index,
