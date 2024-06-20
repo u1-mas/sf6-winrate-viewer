@@ -1,30 +1,29 @@
-/// <reference lib="deno.unstable" />
+import { loadSync } from "$std/dotenv/mod.ts";
+import { WinrateData } from "./WinrateData.ts";
+import { createWinrateData, saveToDatabase } from "./createData.ts";
 
-import { saveToDatabase } from "./DataManager.ts";
-import { PageManager } from "./PageManager.ts";
+const ci = Deno.env.get("CI") === "true";
+if (!ci) {
+    loadSync({ export: true, allowEmptyValues: true });
+}
 
-const retries = 3;
-const createWinrateData = async () => {
-  const email = Deno.env.get("EMAIL")!;
-  const password = Deno.env.get("PASSWORD")!;
+let winrateData;
+if (
+    !ci &&
+    !Deno.args.some((a) => a === "--force") &&
+    (await Deno.stat("./temp.json")).isFile
+) {
+    console.log("temp.json found. use temp.");
+    winrateData = JSON.parse(
+        Deno.readTextFileSync("./temp.json"),
+    ) as WinrateData;
+} else {
+    winrateData = await createWinrateData();
+}
 
-  for (let index = 0; index < retries; index++) {
-    try {
-      // webからjsonにする
-      const manager = await PageManager.build(email, password);
-      return await manager.createWinrateData();
-    } catch (err) {
-      console.log("Throw error. Retry: ", index);
-      if (index === retries - 1) {
-        throw err;
-      }
-    }
-  }
-};
-export const createData = async () => {
-  const winrateData = await createWinrateData();
-  if (winrateData === undefined) {
-    return;
-  }
-  await saveToDatabase(winrateData);
-};
+if (winrateData === undefined) {
+    Deno.exit(0);
+}
+
+await saveToDatabase(winrateData);
+Deno.exit(0);

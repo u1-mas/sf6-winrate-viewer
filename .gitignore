@@ -4,3 +4,4 @@ database/
 logs/
 .env
 _fresh
+temp.json

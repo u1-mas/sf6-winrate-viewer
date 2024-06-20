@@ -19,11 +19,5 @@ if (!(Deno.readTextFileSync instanceof Function)) {
 import { start } from "$fresh/server.ts";
 import manifest from "./fresh.gen.ts";
 import config from "./fresh.config.ts";
-import { createData } from "./scripts/create_data.ts";
-
-Deno.cron("cron create_data", "0 0 * * *", async () => {
-  console.log("start cron");
-  await createData();
-});
 
 await start(manifest, config);

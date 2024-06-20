@@ -1,0 +1,21 @@
+name: Create Data
+on:
+  workflow_dispatch:
+jobs:
+  create_data:
+    name: Create Data
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+      - name: Install Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Create data
+        run: "deno task create_data"
+        env:
+          DENO_KV_URL: ${{ secrets.DENO_KV_URL }}
+          DENO_KV_ACCESS_TOKEN: ${{ secrets.DENO_KV_ACCESS_TOKEN }}
+          EMAIL: ${{ secrets.EMAIL }}
+          PASSWORD: ${{ secrets.PASSWORD }}

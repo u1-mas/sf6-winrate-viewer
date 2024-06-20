@@ -16,16 +16,19 @@ export class PageManager {
   }
 
   static async build(email: string, password: string) {
-    const browser = await puppeteer.launch({
-      headless: false,
-    });
+    const browser = await puppeteer.launch();
     const page = await browser.newPage();
+
+    await page.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0",
+    );
     await page.goto(url, { "waitUntil": "networkidle2" });
     await page.waitForNetworkIdle();
 
     await page.waitForSelector("input[name=email]");
     await page.type("input[name=email]", email);
     await page.type("input[name=password]", password);
+
     await page.click("button[name=submit]");
 
     await page.waitForSelector("aside[class^=header_user_nav]");
@@ -47,6 +50,7 @@ export class PageManager {
       "div[class^=profile_nav_inner] > ul > li:nth-child(2)",
     );
 
+    console.log("complete build.");
     return new PageManager(page);
   }
 
