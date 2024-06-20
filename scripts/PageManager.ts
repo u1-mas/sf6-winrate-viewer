@@ -32,6 +32,7 @@ export class PageManager {
     } else {
       browser = await puppeteer.launch({
         headless: false,
+        devtools: true,
       });
       page = await browser.newPage();
     }
@@ -66,7 +67,7 @@ export class PageManager {
       console.log("cookie button is missing. skip.");
     }
 
-    // 本人確認のための生年月日入力を超える
+    // 本人確認のための生年月日を入れる
     try {
       await this.page.waitForSelector("select[name=country]", {
         timeout: 3000,
@@ -109,6 +110,7 @@ export class PageManager {
     await this.page.waitForSelector("dl[class^=header_disp]");
     await this.screenshotManager.takeScreenShot("header_disp");
 
+    await this.page.waitForSelector("li[class^=header_title]");
     await this.page.click("li[class^=header_title] > a", { delay: 1000 });
     await this.page.waitForSelector("aside#profile_nav");
     await this.screenshotManager.takeScreenShot("profile_nav");
@@ -119,9 +121,10 @@ export class PageManager {
     );
     await this.screenshotManager.takeScreenShot("click_play");
 
-    await this.page.waitForSelector("aside[class^=play_nav_play_nav]", {
-      timeout: 10000,
-    });
+    await Promise.any([
+      this.page.waitForNetworkIdle(),
+      this.page.waitForSelector("aside[class^=play_nav_play_nav]"),
+    ]);
     await this.screenshotManager.takeScreenShot("transition_playpage");
     console.log("complete transition playpage.");
   }
@@ -139,7 +142,7 @@ export class PageManager {
       "aside[class^=filter_nav_filter_nav] select",
     );
     await filters[1].select("2"); // ランクマッチ
-    await this.page.waitForNetworkIdle();
+    console.log("select rank_match");
     await this.screenshotManager.takeScreenShot("select_rank_match");
     const acts: { value: string; text: string }[] = await filters[0].$$eval(
       "option",
@@ -149,20 +152,43 @@ export class PageManager {
           text: option.text,
         })),
     );
+    console.log({ acts });
 
     const charactorNumber = await this.page.$$eval(
       "div[class^=winning_rate_inner] > ul > li",
       (nodes) => nodes.length,
     );
+    console.log({ charactorNumber });
     const changeCharactor = async (cN: number) => {
-      await this.page.click("div[class^=winning_rate_select_character]");
-      await this.page.waitForSelector(
-        "ul[class^=winning_rate_character_list]",
-      );
+      console.log({ cN });
+      for (let i = 0; i < 3; i++) {
+        try {
+          await this.page.waitForSelector(
+            "div[class^=winning_rate_select_character]",
+            {
+              visible: true,
+              timeout: 1000,
+            },
+          );
+          await this.page.click("div[class^=winning_rate_select_character]");
+          await this.page.waitForSelector(
+            "ul[class^=winning_rate_character_list]",
+            { timeout: 1000 },
+          );
+          break;
+        } catch (err) {
+          if (err instanceof Error) {
+            if (i === 2) {
+              throw err;
+            }
+          }
+        }
+      }
+
       const selectCharactors = await this.page.$$(
         "ul[class^=winning_rate_character_list] > li",
       );
-      await selectCharactors[cN].click();
+      await selectCharactors[cN].click({ delay: 1000 });
       await this.screenshotManager.takeScreenShot(
         `select_${await selectCharactors[cN].$eval(
           "dl > dt",
@@ -189,7 +215,6 @@ export class PageManager {
       for (const act of acts) {
         console.log(act);
         await filters[0].select(act.value);
-        await this.page.waitForNetworkIdle();
         this.screenshotManager.takeScreenShot(
           `${act.text}_by_${playerCharactor}`,
         );

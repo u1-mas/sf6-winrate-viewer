@@ -1,6 +1,8 @@
 name: Create Data
 on:
   workflow_dispatch:
+  push:
+    branches: master
   schedule:
     - cron: '0 0 * * *'
 jobs:
@@ -19,14 +21,15 @@ jobs:
         uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-      - name: Install Deps
-        run: deno task cache-create-data-deps
       - name: Cache Deno deps
+        id: cache_dependency
         uses: actions/cache@v2
         with:
           path: ~/.cache/deno
           key: cache-${{ hashFiles('deno.lock') }}
           restore-keys: cache-
+      - name: Install Deps
+        run: deno task cache-create-data-deps
       - name: Create data
         run: deno task create_data
         env:
