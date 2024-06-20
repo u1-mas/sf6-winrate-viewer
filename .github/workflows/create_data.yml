@@ -1,6 +1,8 @@
 name: Create Data
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
 jobs:
   create_data:
     name: Create Data
@@ -21,7 +23,7 @@ jobs:
           PASSWORD: ${{ secrets.PASSWORD }}
       - name: Upload Snapshots
         if: always()
-        uses: actions/upload@artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: screenshots-${{ github.sha }}
           path: snapshots
