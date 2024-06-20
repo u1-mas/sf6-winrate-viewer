@@ -19,6 +19,14 @@ jobs:
         uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
+      - name: Install Deps
+        run: deno task cache-fresh-deps
+      - name: Cache Deno deps
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/deno
+          key: cache-${{ hashFiles('deno.lock') }}
+          restore-keys: cache-
       - name: Create env file
         run: |
           touch .env

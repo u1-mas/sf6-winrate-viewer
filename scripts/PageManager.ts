@@ -21,18 +21,26 @@ export class PageManager {
 
   static async build() {
     let browser;
+    let page;
     if (Deno.env.get("CI") === "true") {
       browser = await puppeteer.launch({
         slowMo: 100,
       });
+      page = await browser.newPage();
+      page.setDefaultNavigationTimeout(100000);
+      page.setDefaultTimeout(100000);
     } else {
       browser = await puppeteer.launch({
         headless: false,
       });
+      page = await browser.newPage();
     }
-    const page = await browser.newPage();
 
     return new PageManager(page);
+  }
+
+  async close() {
+    await this.page.browser().close();
   }
 
   async transitionPlayPage(email: string, password: string) {
@@ -58,6 +66,7 @@ export class PageManager {
       console.log("cookie button is missing. skip.");
     }
 
+    // 本人確認のための生年月日入力を超える
     try {
       await this.page.waitForSelector("select[name=country]", {
         timeout: 3000,
@@ -80,15 +89,10 @@ export class PageManager {
     await this.page.type("input[name=password]", password);
     await this.screenshotManager.takeScreenShot("input_user_data");
 
-    Deno.writeTextFileSync("temp.html", await this.page.content());
     await this.page.click("button[name=submit]");
-    console.log("click submit button.");
-    // await this.page.waitForNetworkIdle();
 
-    await this.screenshotManager.takeScreenShot("main_page");
     await this.page.waitForSelector("aside[class^=header_user_nav]");
-
-    await this.page.waitForNetworkIdle();
+    // await this.screenshotManager.takeScreenShot("after_header_user_nav", true);
 
     // cookieボタンがあったら押す
     try {
@@ -97,40 +101,46 @@ export class PageManager {
       );
       await this.screenshotManager.takeScreenShot("check_cookie_2");
       await this.page.click("button#CybotCookiebotDialogBodyButtonDecline");
-      await this.page.waitForNetworkIdle();
     } catch (_) {
       console.log("cookie button is missing. skip.");
     }
 
     await this.page.click("aside[class^=header_user_nav] dt");
     await this.page.waitForSelector("dl[class^=header_disp]");
-    await this.page.click("li[class^=header_title] > a");
-    await this.page.waitForNetworkIdle();
+    await this.screenshotManager.takeScreenShot("header_disp");
+
+    await this.page.click("li[class^=header_title] > a", { delay: 1000 });
     await this.page.waitForSelector("aside#profile_nav");
+    await this.screenshotManager.takeScreenShot("profile_nav");
+
     await this.page.click(
-      "div[class^=profile_nav_inner] > ul > li:nth-child(2)",
+      "div[class^=profile_nav_inner] > ul > li:nth-child(2)", // PLAYボタン
+      { delay: 1000 },
     );
-    await this.page.waitForNetworkIdle();
+    await this.screenshotManager.takeScreenShot("click_play");
+
+    await this.page.waitForSelector("aside[class^=play_nav_play_nav]", {
+      timeout: 10000,
+    });
     await this.screenshotManager.takeScreenShot("transition_playpage");
     console.log("complete transition playpage.");
   }
 
-  async close() {
-    await this.page.browser().close();
-  }
-
   async createWinrateData(): Promise<WinrateData> {
     await this.page.waitForSelector(playNavClass);
-    await this.page.click(`${playNavClass} > li:nth-child(5)`); // キャラクター別対戦数
+    await this.page.click(`${playNavClass} > li:nth-child(5)`, { delay: 1000 }); // キャラクター別対戦数
     await this.page.waitForSelector(
       "article[class^=winning_rate_winning_rate]",
     );
+    await this.screenshotManager.takeScreenShot("by_charactor");
 
     // 0: ACT, 1: mode
     const filters = await this.page.$$(
       "aside[class^=filter_nav_filter_nav] select",
     );
     await filters[1].select("2"); // ランクマッチ
+    await this.page.waitForNetworkIdle();
+    await this.screenshotManager.takeScreenShot("select_rank_match");
     const acts: { value: string; text: string }[] = await filters[0].$$eval(
       "option",
       (options) =>
@@ -146,7 +156,6 @@ export class PageManager {
     );
     const changeCharactor = async (cN: number) => {
       await this.page.click("div[class^=winning_rate_select_character]");
-      await this.page.waitForNetworkIdle();
       await this.page.waitForSelector(
         "ul[class^=winning_rate_character_list]",
       );
@@ -154,13 +163,17 @@ export class PageManager {
         "ul[class^=winning_rate_character_list] > li",
       );
       await selectCharactors[cN].click();
+      await this.screenshotManager.takeScreenShot(
+        `select_${await selectCharactors[cN].$eval(
+          "dl > dt",
+          (elem) => elem.innerText,
+        )}`,
+      );
       await this.page.click("button[class^=modal_search__btn]");
-      await this.page.waitForNetworkIdle();
     };
 
     let byPlayerCharactor: WinrateDataByPlayerCharactor = {};
     for (let idx = 0; idx < charactorNumber; idx++) {
-      await this.page.waitForNetworkIdle();
       await changeCharactor(idx);
 
       const playerCharactor = (await this.page.$eval(
@@ -168,12 +181,19 @@ export class PageManager {
         (node) => node.innerText,
       ) as string).toLowerCase().replaceAll(" ", "_");
       console.log({ playerCharactor });
+      await this.screenshotManager.takeScreenShot(
+        `selected_${playerCharactor}`,
+      );
 
       let byAct: WinrateDataByAct = {};
       for (const act of acts) {
         console.log(act);
         await filters[0].select(act.value);
         await this.page.waitForNetworkIdle();
+        this.screenshotManager.takeScreenShot(
+          `${act.text}_by_${playerCharactor}`,
+        );
+
         const winrates = await this.page.$$(
           "div[class^=winning_rate_inner] > ul > li",
         );

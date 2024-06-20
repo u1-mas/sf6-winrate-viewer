@@ -10,18 +10,31 @@ export class ScreenshotManager {
         Deno.mkdirSync(this.snapshotDirPath, { recursive: true });
     }
 
-    async takeScreenShot(prefix: string = "") {
-        const filepath = join(
+    async takeScreenShot(prefix: string = "", withHtml: boolean = false) {
+        const filename = join(
             this.snapshotDirPath,
             prefix === ""
-                ? `${this.ssNumber++}.png`
-                : `${this.ssNumber++}_${prefix}.png`,
+                ? `${this.ssNumber++}`
+                : `${this.ssNumber++}_${prefix}`,
         );
         await this.page.screenshot({
             fullPage: true,
-            path: resolve(filepath),
+            path: resolve(filename + ".png"),
         });
+        console.log("Screenshot Save:", resolve(filename + ".png"));
 
-        console.log("Screenshot Save:", resolve(filepath));
+        try {
+            if (withHtml) {
+                await Deno.writeTextFile(
+                    resolve(filename + ".html"),
+                    await this.page.content(),
+                );
+                console.log("Html Save:", resolve(filename, ".html"));
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                console.log(error.message);
+            }
+        }
     }
 }
