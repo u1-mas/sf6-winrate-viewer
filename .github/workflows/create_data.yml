@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+      - name: Install Japanese font.
+        run: sudo apt install -y fonts-noto
       - name: Install Deno
         uses: denoland/setup-deno@v1
         with:

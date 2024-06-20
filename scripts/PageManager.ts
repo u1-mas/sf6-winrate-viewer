@@ -44,6 +44,10 @@ export class PageManager {
       await this.page.waitForSelector(
         "button#CybotCookiebotDialogBodyButtonDecline",
       );
+      Deno.writeTextFileSync(
+        "snapshots/temp_0.html",
+        await this.page.content(),
+      );
       await this.page.click("button#CybotCookiebotDialogBodyButtonDecline");
       await this.page.waitForNetworkIdle();
     } catch (_) {
