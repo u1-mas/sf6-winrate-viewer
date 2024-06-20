@@ -1,6 +1,8 @@
 import { WinrateData } from "./WinrateData.ts";
 
-Deno.mkdirSync("database", { recursive: true });
+if (typeof Deno.env.get("DENO_DEPLOYMENT_ID") !== "string") {
+  Deno.mkdirSync("database", { recursive: true });
+}
 const kv = await Deno.openKv(Deno.env.get("DATABASE"));
 
 const setDb = async (winrateByDate: WinrateData) => {
