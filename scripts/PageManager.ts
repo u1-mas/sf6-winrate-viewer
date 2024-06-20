@@ -13,6 +13,7 @@ const url =
 export class PageManager {
   page: Page;
   screenshotManager: ScreenshotManager;
+
   constructor(page: Page) {
     this.page = page;
     this.screenshotManager = new ScreenshotManager(this.page);
@@ -52,8 +53,22 @@ export class PageManager {
       );
       await this.page.click("button#CybotCookiebotDialogBodyButtonDecline");
       await this.page.waitForNetworkIdle();
+      await this.screenshotManager.takeScreenShot();
     } catch (_) {
       console.log("cookie button is missing. skip.");
+    }
+
+    try {
+      await this.page.waitForSelector("select[name=country]");
+      await this.page.select("select[name=country]", "JP");
+      await this.page.select("select[name=birthYear]", "1999");
+      await this.page.select("select[name=birthMonth]", "10");
+      await this.page.select("select[name=birthDay]", "22");
+      await this.page.click("button[name=submit]");
+      await this.page.waitForNetworkIdle();
+      await this.screenshotManager.takeScreenShot();
+    } catch (_) {
+      console.log("nothing birthday check. skip.");
     }
 
     await this.screenshotManager.takeScreenShot();
