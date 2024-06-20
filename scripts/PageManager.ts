@@ -5,53 +5,64 @@ import {
   WinrateDataByOppronentCharactor,
   WinrateDataByPlayerCharactor,
 } from "./WinrateData.ts";
+import { ScreenshotManager } from "./ScreenshotManager.ts";
 
 const url =
   "https://www.streetfighter.com/6/buckler/ja-jp/auth/loginep?redirect_url=/";
 
 export class PageManager {
   page: Page;
+  screenshotManager: ScreenshotManager;
   constructor(page: Page) {
     this.page = page;
+    this.screenshotManager = new ScreenshotManager(this.page);
   }
 
-  static async build(email: string, password: string) {
-    const browser = await puppeteer.launch();
+  static async build() {
+    const browser = await puppeteer.launch({
+      headless: false,
+    });
     const page = await browser.newPage();
 
-    await page.setUserAgent(
+    return new PageManager(page);
+  }
+
+  async transitionPlayPage(email: string, password: string) {
+    await this.page.setUserAgent(
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0",
     );
-    await page.goto(url, { "waitUntil": "networkidle2" });
-    await page.waitForNetworkIdle();
+    await this.page.goto(url, { "waitUntil": "networkidle2" });
+    await this.page.waitForNetworkIdle();
 
-    await page.waitForSelector("input[name=email]");
-    await page.type("input[name=email]", email);
-    await page.type("input[name=password]", password);
+    await this.screenshotManager.takeScreenShot();
+    await this.page.waitForSelector("input[name=email]");
 
-    await page.click("button[name=submit]");
+    await this.screenshotManager.takeScreenShot();
+    await this.page.type("input[name=email]", email);
+    await this.page.type("input[name=password]", password);
 
-    await page.waitForSelector("aside[class^=header_user_nav]");
-    await page.waitForNetworkIdle();
+    await this.page.click("button[name=submit]");
+
+    await this.page.waitForSelector("aside[class^=header_user_nav]");
+    await this.page.waitForNetworkIdle();
 
     // cookie許可しないボタンを押す
-    await page.waitForSelector(
+    await this.page.waitForSelector(
       "button#CybotCookiebotDialogBodyButtonDecline",
     );
-    await page.click("button#CybotCookiebotDialogBodyButtonDecline");
-    await page.waitForNetworkIdle();
+    await this.page.click("button#CybotCookiebotDialogBodyButtonDecline");
+    await this.page.waitForNetworkIdle();
 
-    await page.click("aside[class^=header_user_nav] dt");
-    await page.waitForSelector("dl[class^=header_disp]");
-    await page.click("li[class^=header_title] > a");
-    await page.waitForNetworkIdle();
-    await page.waitForSelector("aside#profile_nav");
-    await page.click(
+    await this.page.click("aside[class^=header_user_nav] dt");
+    await this.page.waitForSelector("dl[class^=header_disp]");
+    await this.page.click("li[class^=header_title] > a");
+    await this.page.waitForNetworkIdle();
+    await this.page.waitForSelector("aside#profile_nav");
+    await this.page.click(
       "div[class^=profile_nav_inner] > ul > li:nth-child(2)",
     );
 
-    console.log("complete build.");
-    return new PageManager(page);
+    console.log("complete transition playpage.");
   }
 
   async close() {

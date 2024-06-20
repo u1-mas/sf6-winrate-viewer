@@ -5,3 +5,4 @@ logs/
 .env
 _fresh
 temp.json
+snapshot/

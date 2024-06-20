@@ -12,9 +12,16 @@ export const createWinrateData = async () => {
   for (let index = 0; index < retries; index++) {
     try {
       // webからjsonにする
-      const manager = await PageManager.build(email, password);
+      const manager = await PageManager.build();
+      await manager.transitionPlayPage(email, password);
       return await manager.createWinrateData();
     } catch (err) {
+      if (err instanceof Error) {
+        if (err.message === "Navigating frame was detached") {
+          console.log(err.message);
+          Deno.exit(0);
+        }
+      }
       console.log("Throw error. Retry: ", index);
       if (index === retries - 1) {
         throw err;

@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
 jobs:
   create_data:
+    name: Create Data
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
@@ -18,3 +19,9 @@ jobs:
           DENO_KV_ACCESS_TOKEN: ${{ secrets.DENO_KV_ACCESS_TOKEN }}
           EMAIL: ${{ secrets.EMAIL }}
           PASSWORD: ${{ secrets.PASSWORD }}
+      - name: Upload Snapshots
+        if: always()
+        uses: actions/upload@artifact@v4
+        with:
+          name: screenshots-${{ github.sha }}
+          path: snapshots
