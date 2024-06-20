@@ -47,6 +47,9 @@ export class PageManager {
     try {
       await this.page.waitForSelector(
         "button#CybotCookiebotDialogBodyButtonDecline",
+        {
+          timeout: 3000,
+        },
       );
       await this.screenshotManager.takeScreenShot("check_cookie_1");
 
@@ -56,7 +59,9 @@ export class PageManager {
     }
 
     try {
-      await this.page.waitForSelector("select[name=country]");
+      await this.page.waitForSelector("select[name=country]", {
+        timeout: 3000,
+      });
       await this.page.select("select[name=country]", "JP");
       await this.page.select("select[name=birthYear]", "1999");
       await this.page.select("select[name=birthMonth]", "10");
@@ -75,8 +80,10 @@ export class PageManager {
     await this.page.type("input[name=password]", password);
     await this.screenshotManager.takeScreenShot("input_user_data");
 
+    Deno.writeTextFileSync("temp.html", await this.page.content());
     await this.page.click("button[name=submit]");
-    await this.page.waitForNetworkIdle();
+    console.log("click submit button.");
+    // await this.page.waitForNetworkIdle();
 
     await this.screenshotManager.takeScreenShot("main_page");
     await this.page.waitForSelector("aside[class^=header_user_nav]");
