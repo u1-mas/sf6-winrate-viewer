@@ -7,8 +7,13 @@ export const handler = async (
   ctx: FreshContext,
 ): Promise<Response> => {
   const kv = await openAppKv();
-  const act = ctx.url.searchParams.get("act")!;
-  const charactor = ctx.url.searchParams.get("charactor")!;
+  const act = ctx.url.searchParams.get("act");
+  const charactor = ctx.url.searchParams.get("charactor");
+  if (act === null || charactor === null) {
+    return new Response(JSON.stringify({ error: "Missing parameter" }), {
+      status: 400,
+    });
+  }
 
   const list = kv.list<WinrateDataByOppronentCharactor>({
     prefix: [charactor, act],

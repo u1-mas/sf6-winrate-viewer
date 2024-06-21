@@ -8,7 +8,7 @@ export default function UpdateHistory() {
       console.log("fetch update history.");
       const resp = await fetch("/api/updateHistory");
       const json: Date = await resp.json();
-      history.value = json;
+      history.value = new Date(json);
     })();
   }, [history]);
 
