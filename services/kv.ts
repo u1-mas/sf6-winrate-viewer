@@ -1,5 +1,6 @@
 export const openAppKv = () => {
-  if (Deno.env.get("CI") === "true") {
+  // see: https://docs.deno.com/deploy/manual/environment-variables#default-environment-variables
+  if (Deno.env.get("DENO_DEPLOYMENT_ID") !== undefined) {
     return Deno.openKv();
   } else {
     Deno.mkdirSync("database", { recursive: true });
