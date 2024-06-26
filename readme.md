@@ -10,6 +10,16 @@ deno deployを使用しています。
 
 - 平文なので要注意
 
+### 開発時
+
+初回のみ
+
+```sh
+deno task hook install
+```
+
+> https://deno.land/x/deno_hooks@0.1.2
+
 ### WSL
 
 - 日本語フォントを入れる
