@@ -1,4 +1,5 @@
 import { FreshContext } from "$fresh/server.ts";
+import { ChartViewProps } from "../../islands/ChartView.tsx";
 import { WinrateDataByOppronentCharactor } from "../../scripts/WinrateData.ts";
 import { openAppKv } from "../../services/kv.ts";
 
@@ -14,19 +15,26 @@ export const handler = async (
       status: 400,
     });
   }
-
   const list = kv.list<WinrateDataByOppronentCharactor>({
     prefix: [charactor, act],
   });
-  let d: {
-    [dateString: string]: WinrateDataByOppronentCharactor;
-  } = {};
-  for await (const data of list) {
-    const date = data.key[2].toString();
-    d = {
-      ...d,
-      [date]: data.value,
-    };
+  const listTemp = [];
+  for await (const l of list) {
+    listTemp.push({ date: l.key[2].toString(), value: l.value });
   }
-  return new Response(JSON.stringify(d));
+  const charactors = Object.keys(listTemp[0].value);
+  const datasets = [];
+  for (const charactor of charactors) {
+    datasets.push({
+      label: charactor,
+      data: Object.values(
+        listTemp.map((x) => x.value[charactor].winrate),
+      ),
+    });
+  }
+  const data: ChartViewProps["chartData"]["value"] = {
+    datasets: datasets,
+    labels: listTemp.map((x) => x.date),
+  };
+  return new Response(JSON.stringify(data));
 };

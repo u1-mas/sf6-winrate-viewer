@@ -1,21 +1,16 @@
 import { Signal, useSignal, useSignalEffect } from "@preact/signals";
 import { useEffect } from "preact/hooks";
-import { WinrateDataByOppronentCharactor } from "../scripts/WinrateData.ts";
 import ky from "ky";
+import { ChartViewProps } from "../islands/ChartView.tsx";
 
 type FiltersProps = {
   charactor: Signal<string>;
   act: Signal<string>;
-  withAll: Signal<boolean>;
-  winrateData: Signal<
-    {
-      [dateString: string]: WinrateDataByOppronentCharactor;
-    } | null
-  >;
   tableData: Signal<string[][] | null>;
+  chartData: ChartViewProps["chartData"];
 };
 export default function Filters(
-  { charactor, act, winrateData, tableData }: FiltersProps,
+  { charactor, act, tableData, chartData }: FiltersProps,
 ) {
   const charactors = useSignal<string[]>([]);
   useEffect(() => {
@@ -39,27 +34,10 @@ export default function Filters(
 
   useSignalEffect(() => {
     (async () => {
-      console.log({ charactor: charactor.value, act: act.value });
       if (charactor.value === "" || act.value === "") {
         return;
       }
 
-      console.log("fetch winrate data");
-      const params = new URLSearchParams({
-        charactor: charactor.value,
-        act: act.value,
-      });
-      const resp = await ky.get(
-        "/api/winrateData",
-        {
-          searchParams: params,
-        },
-      );
-      winrateData.value = await resp.json();
-    })();
-  });
-  useSignalEffect(() => {
-    (async () => {
       console.log("fetch tableData");
       const params = new URLSearchParams({
         charactor: charactor.value,
@@ -69,6 +47,19 @@ export default function Filters(
         searchParams: params,
       });
       tableData.value = await resp.json();
+    })();
+  });
+  useSignalEffect(() => {
+    (async () => {
+      console.log("fetch chartData");
+      const params = new URLSearchParams({
+        charactor: charactor.value,
+        act: act.value,
+      });
+      const resp = await ky.get("/api/chartData", {
+        searchParams: params,
+      });
+      chartData.value = await resp.json();
     })();
   });
 
