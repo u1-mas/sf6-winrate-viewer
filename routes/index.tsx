@@ -8,11 +8,13 @@ import UpdateHistory from "../islands/UpdateHistory.tsx";
 export default function Home() {
   const charactor = useSignal("luke");
   const act = useSignal("");
-  const withAll = useSignal(false);
   const winrateData = useSignal<{
     [dateString: string]: WinrateDataByOppronentCharactor;
   }>({});
   const tableData = useSignal<string[][] | null>(null);
+  const chartData = useSignal<
+    { labels: string[]; datasets: number[][] } | null
+  >(null);
   return (
     <div class="min-h-screen px-4 py-8 min-w-screen bg-[#e7f3c7]">
       <div className="container mx-auto">
@@ -20,11 +22,11 @@ export default function Home() {
         <Filters
           winrateData={winrateData}
           charactor={charactor}
-          withAll={withAll}
           act={act}
           tableData={tableData}
+          chartData={chartData}
         />
-        <Viewer winrateData={winrateData} withAll={withAll} />
+        <Viewer winrateData={winrateData} chartData={chartData} />
         <TableView
           tableData={tableData}
         />

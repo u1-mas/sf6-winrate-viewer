@@ -6,6 +6,7 @@ import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
 import * as $_middleware from "./routes/_middleware.ts";
 import * as $api_charactors from "./routes/api/charactors.ts";
+import * as $api_chartData from "./routes/api/chartData.ts";
 import * as $api_tableData from "./routes/api/tableData.ts";
 import * as $api_updateHistory from "./routes/api/updateHistory.ts";
 import * as $api_winrateData from "./routes/api/winrateData.ts";
@@ -23,6 +24,7 @@ const manifest = {
     "./routes/_app.tsx": $_app,
     "./routes/_middleware.ts": $_middleware,
     "./routes/api/charactors.ts": $api_charactors,
+    "./routes/api/chartData.ts": $api_chartData,
     "./routes/api/tableData.ts": $api_tableData,
     "./routes/api/updateHistory.ts": $api_updateHistory,
     "./routes/api/winrateData.ts": $api_winrateData,

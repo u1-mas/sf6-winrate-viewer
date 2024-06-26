@@ -6,9 +6,14 @@ type ViewerProps = {
   winrateData: Signal<{
     [dateString: string]: WinrateDataByOppronentCharactor;
   }>;
-  withAll: Signal<boolean>;
+  chartData: Signal<
+    {
+      labels: string[];
+      datasets: number[][];
+    } | null
+  >;
 };
-export default function Viewer({ winrateData, withAll }: ViewerProps) {
+export default function Viewer({ winrateData, chartData }: ViewerProps) {
   const byDate = winrateData.value;
   const dates = Object.keys(byDate);
   if (dates.length == 0) {
@@ -20,7 +25,7 @@ export default function Viewer({ winrateData, withAll }: ViewerProps) {
   const datasets = charactors.map((c) => ({
     label: c,
     data: Object.values(byDate).map((res) => res[c][mode]),
-  })).filter((d) => d.label !== "all" || !withAll);
+  })).filter((d) => d.label !== "all");
 
   return (
     <Chart

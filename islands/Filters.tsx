@@ -6,16 +6,16 @@ import ky from "ky";
 type FiltersProps = {
   charactor: Signal<string>;
   act: Signal<string>;
-  withAll: Signal<boolean>;
   winrateData: Signal<
     {
       [dateString: string]: WinrateDataByOppronentCharactor;
     } | null
   >;
   tableData: Signal<string[][] | null>;
+  chartData: Signal<{ labels: string[]; datasets: number[][] } | null>;
 };
 export default function Filters(
-  { charactor, act, winrateData, tableData }: FiltersProps,
+  { charactor, act, winrateData, tableData, chartData }: FiltersProps,
 ) {
   const charactors = useSignal<string[]>([]);
   useEffect(() => {
@@ -39,7 +39,6 @@ export default function Filters(
 
   useSignalEffect(() => {
     (async () => {
-      console.log({ charactor: charactor.value, act: act.value });
       if (charactor.value === "" || act.value === "") {
         return;
       }
@@ -60,6 +59,10 @@ export default function Filters(
   });
   useSignalEffect(() => {
     (async () => {
+      if (charactor.value === "" || act.value === "") {
+        return;
+      }
+
       console.log("fetch tableData");
       const params = new URLSearchParams({
         charactor: charactor.value,
@@ -69,6 +72,19 @@ export default function Filters(
         searchParams: params,
       });
       tableData.value = await resp.json();
+    })();
+  });
+  useSignalEffect(() => {
+    (async () => {
+      console.log("fetch chartData");
+      const params = new URLSearchParams({
+        charactor: charactor.value,
+        act: act.value,
+      });
+      const resp = await ky.get("/api/chartData", {
+        searchParams: params,
+      });
+      chartData.value = await resp.json();
     })();
   });
 
