@@ -9,7 +9,6 @@ import * as $api_charactors from "./routes/api/charactors.ts";
 import * as $api_chartData from "./routes/api/chartData.ts";
 import * as $api_tableData from "./routes/api/tableData.ts";
 import * as $api_updateHistory from "./routes/api/updateHistory.ts";
-import * as $api_winrateData from "./routes/api/winrateData.ts";
 import * as $index from "./routes/index.tsx";
 import * as $ChartView from "./islands/ChartView.tsx";
 import * as $Filters from "./islands/Filters.tsx";
@@ -27,7 +26,6 @@ const manifest = {
     "./routes/api/chartData.ts": $api_chartData,
     "./routes/api/tableData.ts": $api_tableData,
     "./routes/api/updateHistory.ts": $api_updateHistory,
-    "./routes/api/winrateData.ts": $api_winrateData,
     "./routes/index.tsx": $index,
   },
   islands: {
