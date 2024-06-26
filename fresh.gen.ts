@@ -14,7 +14,6 @@ import * as $ChartView from "./islands/ChartView.tsx";
 import * as $Filters from "./islands/Filters.tsx";
 import * as $TableView from "./islands/TableView.tsx";
 import * as $UpdateHistory from "./islands/UpdateHistory.tsx";
-import * as $chart from "./islands/chart.tsx";
 import { type Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -33,7 +32,6 @@ const manifest = {
     "./islands/Filters.tsx": $Filters,
     "./islands/TableView.tsx": $TableView,
     "./islands/UpdateHistory.tsx": $UpdateHistory,
-    "./islands/chart.tsx": $chart,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;

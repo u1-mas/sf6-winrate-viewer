@@ -1,6 +1,5 @@
 import { Signal } from "@preact/signals";
-import Chart from "./chart.tsx";
-import { ChartJs } from "$fresh_charts/deps.ts";
+import { ChartJs, FreshChart } from "../components/Chart.tsx";
 
 export type ChartViewProps = {
   chartData: Signal<
@@ -15,7 +14,7 @@ export default function ChartView({ chartData }: ChartViewProps) {
   return (
     <div class="my-[10px]">
       <div class="mx-auto">勝率</div>
-      <Chart
+      <FreshChart
         type="line"
         data={chartData.value}
       />
