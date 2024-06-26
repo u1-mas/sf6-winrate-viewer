@@ -13,7 +13,7 @@ export default function TableView(
   return (
     <div className="my-[10px]">
       <div className="my-[10px]">
-        総対戦数 / 総合勝率 (変化率) / 日別対戦数 (勝 : 負)
+        総対戦数 / 総合勝率 (前日からの変化率) / 日別対戦数 (勝 : 負)
       </div>
       <div className="whitespace-nowrap overflow-auto w-[100%] max-h-[500px]">
         <table className="table-auto">
