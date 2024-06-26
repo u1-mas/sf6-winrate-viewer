@@ -12,9 +12,10 @@ type FiltersProps = {
       [dateString: string]: WinrateDataByOppronentCharactor;
     } | null
   >;
+  tableData: Signal<string[][] | null>;
 };
 export default function Filters(
-  { charactor, act, winrateData }: FiltersProps,
+  { charactor, act, winrateData, tableData }: FiltersProps,
 ) {
   const charactors = useSignal<string[]>([]);
   useEffect(() => {
@@ -55,6 +56,19 @@ export default function Filters(
         },
       );
       winrateData.value = await resp.json();
+    })();
+  });
+  useSignalEffect(() => {
+    (async () => {
+      console.log("fetch tableData");
+      const params = new URLSearchParams({
+        charactor: charactor.value,
+        act: act.value,
+      });
+      const resp = await ky.get("/api/tableData", {
+        searchParams: params,
+      });
+      tableData.value = await resp.json();
     })();
   });
 

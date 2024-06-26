@@ -12,23 +12,22 @@ export default function Home() {
   const winrateData = useSignal<{
     [dateString: string]: WinrateDataByOppronentCharactor;
   }>({});
+  const tableData = useSignal<string[][] | null>(null);
   return (
     <div class="min-h-screen px-4 py-8 min-w-screen bg-[#e7f3c7]">
       <div className="container mx-auto">
-        <p class="my-4">
-          Try updating this message in the
-          <code class="mx-2">./routes/index.tsx</code> file, and refresh.
-        </p>
-
         <UpdateHistory />
         <Filters
           winrateData={winrateData}
           charactor={charactor}
           withAll={withAll}
           act={act}
+          tableData={tableData}
         />
         <Viewer winrateData={winrateData} withAll={withAll} />
-        <TableView winrateData={winrateData} withAll={withAll} />
+        <TableView
+          tableData={tableData}
+        />
       </div>
     </div>
   );
