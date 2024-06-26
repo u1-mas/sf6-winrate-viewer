@@ -26,7 +26,8 @@
     "tailwindcss": "npm:tailwindcss@3.4.1",
     "tailwindcss/": "npm:/tailwindcss@3.4.1/",
     "tailwindcss/plugin": "npm:/tailwindcss@3.4.1/plugin.js",
-    "ky": "https://esm.sh/ky@1.3.0"
+    "ky": "https://esm.sh/ky@1.3.0",
+    "chartjs": "https://esm.sh/chart.js@4.4.3"
   },
   "lint": {
     "exclude": ["winrates/", "fresh.gen.ts"],

@@ -2,6 +2,7 @@ import { Signal, useSignal, useSignalEffect } from "@preact/signals";
 import { useEffect } from "preact/hooks";
 import { WinrateDataByOppronentCharactor } from "../scripts/WinrateData.ts";
 import ky from "ky";
+import { ChartViewProps } from "../islands/ChartView.tsx";
 
 type FiltersProps = {
   charactor: Signal<string>;
@@ -12,7 +13,7 @@ type FiltersProps = {
     } | null
   >;
   tableData: Signal<string[][] | null>;
-  chartData: Signal<{ labels: string[]; datasets: number[][] } | null>;
+  chartData: ChartViewProps["chartData"];
 };
 export default function Filters(
   { charactor, act, winrateData, tableData, chartData }: FiltersProps,
