@@ -1,7 +1,8 @@
 {
   "tasks": {
     "create_data": "deno run --unstable-ffi --unstable-kv -A scripts/create_data.ts",
-    "dev_server": "deno run --watch=static/,routes/ -A --unstable-kv dev.ts",
+    "dev": "deno run --watch=static/,routes/ -A --unstable-kv dev.ts",
+    "dev_remote": "CONNECT_REMOTE=true deno task dev",
     "build": "deno run -A --unstable-kv dev.ts build",
     "cache-create-data-deps": "deno cache scripts/create_data.ts",
     "cache-fresh-deps": "deno cache main.ts dev.ts",
