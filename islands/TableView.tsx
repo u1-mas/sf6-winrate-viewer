@@ -1,52 +1,48 @@
 import { Signal } from "@preact/signals";
-import { WinrateDataByOppronentCharactor } from "../scripts/WinrateData.ts";
 
 type TableViewProps = {
-  winrateData: Signal<{
-    [dateString: string]: WinrateDataByOppronentCharactor;
-  }>;
-  withAll: Signal<boolean>;
+  tableData: Signal<string[][] | null>;
 };
-export default function TableView({ winrateData, withAll }: TableViewProps) {
-  const byDate = winrateData?.value;
-  if (byDate == null) {
+export default function TableView(
+  { tableData }: TableViewProps,
+) {
+  if (tableData.value === null) {
     return null;
   }
-  const dates = Object.keys(byDate);
-  if (dates.length == 0) {
-    return null;
-  }
-  const charactors = Object.keys(byDate[dates[0]]).filter((c) =>
-    c !== "all" || !withAll
-  ).sort();
+  console.log({ tableData: tableData.value });
   return (
-    <div className="whitespace-nowrap overflow-auto w-[100%] max-h-[500px] mt-[100px] top-0">
-      <table className="table-auto">
-        <thead className=" sticky top-0 z-10 ">
-          <tr className="bg-gray-200">
-            <th className="sticky left-0  bg-white border ">
-              日付
-            </th>
-            {charactors.map((c) => <th className="px-4 py-2 border">{c}</th>)}
-          </tr>
-        </thead>
-        <tbody>
-          {dates.map((d, i) => (
-            <tr key={i}>
-              <td className="px-4 py-2 sticky left-0 z-[2] bg-slate-100 border">
-                {d}
-              </td>
-              {charactors.map((c) => (
-                <td className="px-4 py-2 border">
-                  <span>
-                    {byDate[d][c].game} / {byDate[d][c].winrate}
-                  </span>
-                </td>
+    <div className="my-[10px]">
+      <div className="my-[10px]">
+        総対戦数 / 総合勝率 (変化率) / 日別対戦数 (勝 : 負)
+      </div>
+      <div className="whitespace-nowrap overflow-auto w-[100%] max-h-[500px]">
+        <table className="table-auto">
+          <thead className="sticky top-0 z-10 ">
+            <tr className="bg-gray-200">
+              <th className="sticky left-0  bg-white border ">
+                {tableData.value[0][0]}
+              </th>
+              {tableData.value[0].slice(1).map((h) => (
+                <th className="px-4 py-2 border">{h}</th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {tableData.value.slice(1).map((r, i) => (
+              <tr key={i}>
+                <td className="px-4 py-2 sticky left-0 z-[2] bg-slate-100 border">
+                  {r[0]} {/* 日付 */}
+                </td>
+                {r.slice(1).map((d) => (
+                  <td className="px-4 py-2 border">
+                    <span dangerouslySetInnerHTML={{ __html: d }}></span>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
