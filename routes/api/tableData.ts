@@ -20,7 +20,6 @@ export const handler = async (
   const charactors = Object.keys(list[list.length - 1].value).sort().filter((
     x,
   ) => x !== "all");
-  console.log({ charactors });
   const gameData = list.map((l) => ({
     dateString: l.key[2].toString(),
     data: charactors.reduce(
@@ -76,10 +75,11 @@ const calculateDiff = (today, yesterday): string => {
   const winrateDiff = today.winrate - yesterday.winrate;
   const currentWin = today.game * (yesterday.winrate / 100);
   const yesterdayWin = yesterday.game *
-    (today.winrate / 100);
+    (yesterday.winrate / 100);
   const winDiff = currentWin - yesterdayWin;
-  const loseDiff = (today.game - currentWin) -
-    (today.game - yesterdayWin);
+  const currentLose = today.game - currentWin;
+  const yesterdayLose = yesterday.game - yesterdayWin;
+  const loseDiff = currentLose - yesterdayLose;
   return `${today.game} / ${today.winrate}% ( ${
     formatDiffWithColor(winrateDiff)
   } ) / ${gameDiff} ( ${Math.round(winDiff)} : ${Math.round(loseDiff)} )`;

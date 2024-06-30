@@ -20,6 +20,6 @@ export const openAppKv = () => {
 export const setKvData = async (prefix: string[], value: unknown) => {
   return (await openAppKv()).set(prefix, value);
 };
-export const getKvData = async (prefix: string[]) => {
-  return (await openAppKv()).get(prefix);
+export const getKvData = async <T>(prefix: string[]) => {
+  return (await openAppKv()).get<T>(prefix);
 };

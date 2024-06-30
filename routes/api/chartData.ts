@@ -15,26 +15,26 @@ export const handler = async (
       status: 400,
     });
   }
-  const list = kv.list<WinrateDataByOppronentCharactor>({
+
+  const list = (await Array.fromAsync(kv.list<WinrateDataByOppronentCharactor>({
     prefix: [charactor, act],
-  });
-  const listTemp = [];
-  for await (const l of list) {
-    listTemp.push({ date: l.key[2].toString(), value: l.value });
-  }
-  const charactors = Object.keys(listTemp[0].value);
-  const datasets = [];
-  for (const charactor of charactors) {
-    datasets.push({
-      label: charactor,
-      data: Object.values(
-        listTemp.map((x) => x.value[charactor].winrate),
-      ),
+  }))).map((x) => ({ date: x.key[2].toString(), value: x.value }));
+  if (list.length === 0) {
+    return new Response(JSON.stringify({ error: "Nothing data" }), {
+      status: 404,
     });
   }
+
+  const charactors = Object.keys(list[list.length - 1].value).filter((x) =>
+    x !== "all"
+  );
+  const datasets = charactors.map((c) => ({
+    label: c,
+    data: Object.values(list.map((x) => x.value[c]?.winrate)), // 新キャラ対応
+  }));
   const data: ChartViewProps["chartData"]["value"] = {
     datasets: datasets,
-    labels: listTemp.map((x) => x.date),
+    labels: list.map((x) => x.date),
   };
   return new Response(JSON.stringify(data));
 };
