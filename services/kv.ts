@@ -17,3 +17,9 @@ export const openAppKv = () => {
     return Deno.openKv("database/kv");
   }
 };
+export const setKvData = async (prefix: string[], value: unknown) => {
+  return (await openAppKv()).set(prefix, value);
+};
+export const getKvData = async (prefix: string[]) => {
+  return (await openAppKv()).get(prefix);
+};

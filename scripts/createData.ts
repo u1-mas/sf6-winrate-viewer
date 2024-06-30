@@ -1,6 +1,6 @@
 /// <reference lib="deno.unstable" />
 
-import { openAppKv } from "../services/kv.ts";
+import { openAppKv, setKvData } from "../services/kv.ts";
 import { PageManager } from "./PageManager.ts";
 import { WinrateData } from "./WinrateData.ts";
 
@@ -19,8 +19,10 @@ export const createWinrateData = async () => {
   for (let index = 0; index < retries; index++) {
     try {
       // webからjsonにする
-      const manager = await PageManager.build();
-      await manager.transitionPlayPage(email, password);
+      const manager = await PageManager.build(email, password);
+      const latestAct = await manager.getLatestAct();
+      console.log(latestAct);
+      await setKvData(["latest_act"], latestAct);
       return await manager.createWinrateData();
     } catch (err) {
       if (err instanceof Error) {

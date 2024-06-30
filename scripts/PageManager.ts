@@ -1,4 +1,4 @@
-import puppeteer, { Page } from "puppeteer";
+import puppeteer, { Browser, Page } from "puppeteer";
 import {
   WinrateData,
   WinrateDataByAct,
@@ -7,19 +7,20 @@ import {
 } from "./WinrateData.ts";
 import { ScreenshotManager } from "./ScreenshotManager.ts";
 
-const url =
+const authUrl =
   "https://www.streetfighter.com/6/buckler/ja-jp/auth/loginep?redirect_url=/";
 
 export class PageManager {
   page: Page;
   screenshotManager: ScreenshotManager;
+  playpageUrl: string = "";
 
   constructor(page: Page) {
     this.page = page;
     this.screenshotManager = new ScreenshotManager(this.page);
   }
 
-  static async build() {
+  static async build(email: string, password: string) {
     let browser;
     let page;
     if (Deno.env.get("CI") === "true") {
@@ -37,7 +38,9 @@ export class PageManager {
       page = await browser.newPage();
     }
 
-    return new PageManager(page);
+    const manager = new PageManager(page);
+    await manager.transitionPlayPage(email, password);
+    return manager;
   }
 
   async close() {
@@ -48,7 +51,7 @@ export class PageManager {
     await this.page.setUserAgent(
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0",
     );
-    await this.page.goto(url, { "waitUntil": "networkidle2" });
+    await this.page.goto(authUrl, { "waitUntil": "networkidle2" });
     await this.page.waitForNetworkIdle();
 
     await this.screenshotManager.takeScreenShot("start_page");
@@ -126,7 +129,25 @@ export class PageManager {
       this.page.waitForSelector("aside[class^=play_nav_play_nav]"),
     ]);
     await this.screenshotManager.takeScreenShot("transition_playpage");
+    this.playpageUrl = this.page.url();
     console.log("complete transition playpage.");
+  }
+
+  private async openPlayPage() {
+    const newPage = await this.page.browser().newPage();
+    await newPage.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0",
+    );
+    await newPage.goto(this.playpageUrl, { "waitUntil": "networkidle2" });
+    return newPage;
+  }
+
+  async getLatestAct(): Promise<string> {
+    const page = await this.openPlayPage();
+    return page.$eval(
+      "aside[class^=filter_nav_filter_nav__] select > option:nth-child(1)",
+      (elem) => elem.value,
+    );
   }
 
   async createWinrateData(): Promise<WinrateData> {
