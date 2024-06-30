@@ -1,5 +1,6 @@
 /// <reference lib="deno.unstable" />
 
+import { openAppKv } from "../services/kv.ts";
 import { PageManager } from "./PageManager.ts";
 import { WinrateData } from "./WinrateData.ts";
 
@@ -37,7 +38,7 @@ export const createWinrateData = async () => {
 };
 
 export const saveToDatabase = async (winrateData: WinrateData) => {
-  const kv = await Deno.openKv(Deno.env.get("DENO_KV_URL"));
+  const kv = await openAppKv();
   const date = Object.keys(winrateData)[0];
   const byPlayerCharactor = winrateData[date];
   const playerCharactors = Object.keys(byPlayerCharactor);
@@ -49,7 +50,6 @@ export const saveToDatabase = async (winrateData: WinrateData) => {
       await kv.set([playerCharactor, act.toLowerCase(), date], byOpponents);
     }
   }
-  console.log(await kv.set(["update_history"], new Date()));
 };
 
 export const createData = async () => {

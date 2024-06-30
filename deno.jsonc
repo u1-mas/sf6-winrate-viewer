@@ -1,6 +1,7 @@
 {
   "tasks": {
     "create_data": "deno run --unstable-ffi --unstable-kv -A scripts/create_data.ts",
+    "create_data_remote": "CONNECT_REMOTE=true deno task create_data",
     "dev": "deno run --watch=static/,routes/ -A --unstable-kv dev.ts",
     "dev_remote": "CONNECT_REMOTE=true deno task dev",
     "build": "deno run -A --unstable-kv dev.ts build",
