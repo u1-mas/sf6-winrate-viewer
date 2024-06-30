@@ -1,6 +1,6 @@
 /// <reference lib="deno.unstable" />
 
-import { openAppKv, setKvData } from "../services/kv.ts";
+import { getKvData, openAppKv, setKvData } from "../services/kv.ts";
 import { PageManager } from "./PageManager.ts";
 import { WinrateData } from "./WinrateData.ts";
 
@@ -16,13 +16,20 @@ export const createWinrateData = async () => {
     return;
   }
 
+  const manager = await PageManager.build(email, password);
   for (let index = 0; index < retries; index++) {
     try {
       // webからjsonにする
-      const manager = await PageManager.build(email, password);
-      const acts = (await manager.getActs()).sort();
-      await setKvData(["acts"], acts);
-      return manager.createWinrateData();
+      const acts = (await manager.getActs()).map((x) => Number.parseInt(x))
+        .sort((a, b) => b - a);
+      if (
+        acts.length > ((await getKvData<string[]>(["acts"])).value?.length ?? 0)
+      ) {
+        await setKvData(["acts"], acts);
+        return manager.createWinrateData(acts[0], acts[1]);
+      } else {
+        return manager.createWinrateData(acts[0]);
+      }
     } catch (err) {
       if (err instanceof Error) {
         if (err.message === "Navigating frame was detached") {
@@ -34,6 +41,8 @@ export const createWinrateData = async () => {
       if (index === retries - 1) {
         throw err;
       }
+    } finally {
+      await manager.close();
     }
   }
 };

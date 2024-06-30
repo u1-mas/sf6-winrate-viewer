@@ -151,7 +151,9 @@ export class PageManager {
     );
   }
 
-  async createWinrateData(): Promise<WinrateData> {
+  async createWinrateData(...targetActs: number[]): Promise<WinrateData> {
+    console.log("target act: ", targetActs);
+
     const page = await this.openPlayPage("create winrate data");
     await page.waitForSelector(playNavClass);
     await page.click(`${playNavClass} > li:nth-child(5)`, { delay: 1000 }); // キャラクター別対戦数
@@ -166,15 +168,6 @@ export class PageManager {
     await filters[1].select("2"); // ランクマッチ
     console.log("select rank_match");
     await this.screenshotManager.takeScreenShot(page, "select_rank_match");
-    const acts: { value: string; text: string }[] = await filters[0].$$eval(
-      "option",
-      (options) =>
-        options.map((option) => ({
-          value: option.value,
-          text: option.text,
-        })),
-    );
-    console.log({ acts });
 
     const charactorNumber = await page.$$eval(
       "div[class^=winning_rate_inner] > ul > li",
@@ -236,12 +229,13 @@ export class PageManager {
       );
 
       let byAct: WinrateDataByAct = {};
+      const acts = [...targetActs, -1];
       for (const act of acts) {
         console.log(act);
-        await filters[0].select(act.value);
+        await filters[0].select(act.toString());
         this.screenshotManager.takeScreenShot(
           page,
-          `${act.text}_by_${playerCharactor}`,
+          `act_${act}_by_${playerCharactor}`,
         );
 
         const winrates = await page.$$(
@@ -273,7 +267,7 @@ export class PageManager {
 
         byAct = {
           ...byAct,
-          [act.text.toLowerCase()]: byOpponentCharactor,
+          [act === -1 ? "累計" : `act:${act}`]: byOpponentCharactor,
         };
       }
       byPlayerCharactor = {
