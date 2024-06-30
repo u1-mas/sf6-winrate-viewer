@@ -14,80 +14,44 @@ export const handler = async (
       status: 400,
     });
   }
-  const list = kv.list<WinrateDataByOppronentCharactor>({
+  const list = await Array.fromAsync(kv.list<WinrateDataByOppronentCharactor>({
     prefix: [charactor, act],
-  });
-  const listTemp1 = [];
-  for await (const l of list) {
-    listTemp1.push(l);
-  }
+  }));
+  const charactors = Object.keys(list[list.length - 1].value).sort().filter((
+    x,
+  ) => x !== "all");
+  console.log({ charactors });
+  const gameData = list.map((l) => ({
+    dateString: l.key[2].toString(),
+    data: charactors.reduce(
+      (prev, c) => ({ ...prev, [c]: l.value[c] ?? undefined }),
+      {},
+    ) as { [charactor: string]: { game: number; winrate: number } | undefined },
+  }));
 
-  const listTemp2: [string, { game: number; winrate: number }[]][] = [];
-  for await (const l of listTemp1) {
-    const date = l.key[2].toString();
-    const value = l.value;
-    const sorted = Object.entries(value).sort((a, b) => a[0] > b[0] ? 1 : -1)
-      .filter((x) => x[0] !== "all").map((x) => x[1]);
-    listTemp2.push([date, sorted]);
-  }
-
-  const charactors = Object.keys(listTemp1[0].value).sort((a, b) =>
-    a > b ? 1 : -1
-  ).filter((x) => x !== "all");
-
-  // diffを追加する
-  const resp = [];
-  for (let i = 0; i < listTemp2.length; i++) {
-    const targetDayData = listTemp2[i];
+  const withDiff = gameData.map(({ data, dateString }, i) => {
     if (i === 0) {
-      resp.push(
-        [
-          targetDayData[0],
-          ...targetDayData[1].map((v) => `${v.game} / ${v.winrate}%`),
-        ],
-      );
-      continue;
+      return [
+        dateString,
+        ...charactors.map((c) => `${data[c]?.game} / ${data[c]?.winrate}`),
+      ];
     }
-    const yesterdayData = listTemp2[i - 1][1];
-    const withDiff = targetDayData[1].map((elem, j) => {
-      const gameDiff = elem.game - yesterdayData[j].game;
 
-      if (gameDiff === 0) {
-        return elem;
+    const yesterdayData = gameData[i - 1].data;
+    const temp = charactors.map((c) => {
+      const t = data[c];
+      const y = yesterdayData[c];
+      if (t === undefined || y === undefined) {
+        return "-"; // 新キャラ用
       }
-      const currentWin = elem.game * (elem.winrate / 100);
-      const currentLose = elem.game - currentWin;
-      const yesterdayWin = yesterdayData[j].game * (elem.winrate / 100);
-      const yesterdayLose = yesterdayData[j].game - yesterdayWin;
-      const winDiff = currentWin - yesterdayWin;
-      const loseDiff = currentLose - yesterdayLose;
-      return {
-        ...elem,
-        gameDiff: elem.game - yesterdayData[j].game,
-        winrateDiff: elem.winrate - yesterdayData[j].winrate,
-        winDiff: Math.round(winDiff),
-        loseDiff: Math.round(loseDiff),
-      };
+      return calculateDiff(t, y);
     });
-    resp.push(
-      [
-        targetDayData[0],
-        ...withDiff.map((v) => {
-          if ("gameDiff" in v) {
-            return `${v.game} / ${v.winrate}% ( ${
-              formatDiffWithColor(v.winrateDiff)
-            }% ) / ${v.gameDiff} ( ${v.winDiff} : ${v.loseDiff} )`;
-          } else {
-            return `${v.game} / ${v.winrate}%`;
-          }
-        }),
-      ],
-    );
-  }
+    return [dateString, ...temp];
+  });
 
   return new Response(JSON.stringify([
     ["日付", ...charactors],
-    ...resp,
+    ...withDiff,
   ]));
 };
 
@@ -101,4 +65,22 @@ const formatDiffWithColor = (diff: number, round?: boolean) => {
     const content = round ? Math.ceil(diff) : diff.toFixed(2);
     return `<span class="text-red-500">+${content}</span>`;
   }
+};
+
+const calculateDiff = (today, yesterday): string => {
+  const gameDiff = today.game - yesterday.game;
+  if (gameDiff === 0) {
+    return `${today.game} / ${yesterday.winrate}`;
+  }
+
+  const winrateDiff = today.winrate - yesterday.winrate;
+  const currentWin = today.game * (yesterday.winrate / 100);
+  const yesterdayWin = yesterday.game *
+    (today.winrate / 100);
+  const winDiff = currentWin - yesterdayWin;
+  const loseDiff = (today.game - currentWin) -
+    (today.game - yesterdayWin);
+  return `${today.game} / ${today.winrate}% ( ${
+    formatDiffWithColor(winrateDiff)
+  } ) / ${gameDiff} ( ${Math.round(winDiff)} : ${Math.round(loseDiff)} )`;
 };
