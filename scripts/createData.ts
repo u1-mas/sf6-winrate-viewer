@@ -20,10 +20,9 @@ export const createWinrateData = async () => {
     try {
       // webからjsonにする
       const manager = await PageManager.build(email, password);
-      const latestAct = await manager.getLatestAct();
-      console.log(latestAct);
-      await setKvData(["latest_act"], latestAct);
-      return await manager.createWinrateData();
+      const acts = (await manager.getActs()).sort();
+      await setKvData(["acts"], acts);
+      return manager.createWinrateData();
     } catch (err) {
       if (err instanceof Error) {
         if (err.message === "Navigating frame was detached") {
