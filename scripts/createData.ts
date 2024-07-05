@@ -16,34 +16,50 @@ export const createWinrateData = async () => {
     return;
   }
 
-  const manager = await PageManager.build(email, password);
-  for (let index = 0; index < retries; index++) {
-    try {
-      // webからjsonにする
-      const acts = (await manager.getActs()).map((x) => Number.parseInt(x))
-        .sort((a, b) => b - a);
-      if (
-        acts.length > ((await getKvData<string[]>(["acts"])).value?.length ?? 0)
-      ) {
-        await setKvData(["acts"], acts);
-        return manager.createWinrateData(acts[0], acts[1]);
-      } else {
-        return manager.createWinrateData(acts[0]);
-      }
-    } catch (err) {
-      if (err instanceof Error) {
-        if (err.message === "Navigating frame was detached") {
-          console.log(err.message);
-          Deno.exit(0);
+  const buildManager = () => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        return PageManager.build(email, password);
+      } catch (error) {
+        if (i === retries - 1) {
+          throw error;
         }
+
+        console.log("Throw error. Retry: ", i);
       }
-      console.log("Throw error. Retry: ", index);
-      if (index === retries - 1) {
-        throw err;
-      }
-    } finally {
-      await manager.close();
     }
+  };
+  const manager = await buildManager()!;
+  try {
+    for (let index = 0; index < retries; index++) {
+      try {
+        // webからjsonにする
+        const acts = (await manager.getActs()).map((x) => Number.parseInt(x))
+          .sort((a, b) => b - a);
+        if (
+          acts.length >
+            ((await getKvData<string[]>(["acts"])).value?.length ?? 0)
+        ) {
+          await setKvData(["acts"], acts);
+          return manager.createWinrateData(acts[0], acts[1]);
+        } else {
+          return manager.createWinrateData(acts[0]);
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          if (err.message === "Navigating frame was detached") {
+            console.log(err.message);
+            Deno.exit(0);
+          }
+        }
+        if (index === retries - 1) {
+          throw err;
+        }
+        console.log("Throw error. Retry: ", index);
+      }
+    }
+  } finally {
+    await manager.close();
   }
 };
 

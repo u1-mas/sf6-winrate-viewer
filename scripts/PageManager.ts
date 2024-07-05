@@ -14,10 +14,14 @@ export class PageManager {
   browser: Browser;
   screenshotManager: ScreenshotManager;
   playpageUrl: string = "";
+  email: string = "";
+  password: string = "";
 
-  constructor(browser: Browser) {
+  private constructor(browser: Browser, email: string, password: string) {
     this.browser = browser;
     this.screenshotManager = new ScreenshotManager();
+    this.email = email;
+    this.password = password;
   }
 
   static async build(email: string, password: string) {
@@ -32,13 +36,16 @@ export class PageManager {
       page.setDefaultTimeout(100000);
     } else {
       browser = await puppeteer.launch({
-        headless: false,
-        devtools: true,
+        headless: true,
+        // devtools: true,
+        slowMo: 100,
+        dumpio: true,
+        args: ["--disable-gpu"],
       });
       page = await browser.newPage();
     }
 
-    const manager = new PageManager(browser);
+    const manager = new PageManager(browser, email, password);
     await manager.transitionPlayPage(page, email, password);
     return manager;
   }
@@ -47,7 +54,11 @@ export class PageManager {
     await this.browser.close();
   }
 
-  async transitionPlayPage(page: Page, email: string, password: string) {
+  private async transitionPlayPage(
+    page: Page,
+    email: string,
+    password: string,
+  ) {
     await page.setUserAgent(
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0",
     );
@@ -134,12 +145,18 @@ export class PageManager {
   }
 
   private async openPlayPage(purpose: string) {
-    console.log("open play page for " + purpose + ".");
     const newPage = await this.browser.newPage();
+    console.log("opened play page.");
+    newPage.setDefaultTimeout(100000);
     await newPage.setUserAgent(
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0",
     );
     await newPage.goto(this.playpageUrl, { "waitUntil": "networkidle2" });
+
+    await this.screenshotManager.takeScreenShot(
+      newPage,
+      purpose.replaceAll(" ", "_"),
+    );
     return newPage;
   }
 
