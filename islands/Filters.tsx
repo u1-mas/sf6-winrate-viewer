@@ -1,41 +1,21 @@
 import { Signal, useSignal, useSignalEffect } from "@preact/signals";
-import { useEffect } from "preact/hooks";
 import ky from "ky";
 import { ChartViewProps } from "../islands/ChartView.tsx";
 
 type FiltersProps = {
   tableData: Signal<string[][] | null>;
   chartData: ChartViewProps["chartData"];
+  charactors: string[];
+  acts: string[];
 };
 export default function Filters(
-  { tableData, chartData }: FiltersProps,
+  { tableData, chartData, acts, charactors }: FiltersProps,
 ) {
-  const act = useSignal<string>("");
-  const acts = useSignal<string[]>([]);
+  const act = useSignal<string>(acts[0]);
   const charactor = useSignal<string>("luke");
-  const charactors = useSignal<string[]>([]);
-  useEffect(() => {
-    (async () => {
-      console.log("fetch charactor");
-      const resp = await ky.get("/api/charactors");
-      const json = await resp.json<string[]>();
-      charactors.value = json.sort();
-    })();
-    (async () => {
-      console.log("fetch acts");
-      const resp = await ky.get("/api/acts");
-      const json = await resp.json<string[]>();
-      acts.value = json;
-      act.value = acts.value[0];
-    })();
-  }, []);
 
   useSignalEffect(() => {
     (async () => {
-      if (charactor.value === "" || act.value === "") {
-        return;
-      }
-
       console.log("fetch tableData");
       const params = new URLSearchParams({
         charactor: charactor.value,
@@ -77,11 +57,11 @@ export default function Filters(
           }}
           value={charactor.value}
         >
-          {charactors.value.map((hero) => (
+          {charactors.map((c) => (
             <option
-              value={hero}
+              value={c}
             >
-              {hero}
+              {c}
             </option>
           ))}
         </select>
@@ -97,7 +77,7 @@ export default function Filters(
           }}
           class="border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-1.5"
         >
-          {acts.value.map((a) => <option value={a}>{a}</option>)}
+          {acts.map((a) => <option value={a}>{a}</option>)}
         </select>
       </div>
     </>
