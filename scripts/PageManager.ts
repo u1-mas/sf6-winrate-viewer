@@ -30,17 +30,17 @@ export class PageManager {
     if (Deno.env.get("CI") === "true") {
       browser = await puppeteer.launch({
         slowMo: 100,
+        headless: true,
       });
       page = await browser.newPage();
       page.setDefaultNavigationTimeout(100000);
       page.setDefaultTimeout(100000);
     } else {
       browser = await puppeteer.launch({
-        headless: true,
-        // devtools: true,
-        slowMo: 100,
+        headless: false,
+        devtools: true,
         dumpio: true,
-        args: ["--disable-gpu"],
+        slowMo: 100,
       });
       page = await browser.newPage();
     }
@@ -145,6 +145,7 @@ export class PageManager {
   }
 
   private async openPlayPage(purpose: string) {
+    console.log("open play page for ", purpose + ".");
     const newPage = await this.browser.newPage();
     console.log("opened play page.");
     newPage.setDefaultTimeout(100000);
@@ -165,6 +166,14 @@ export class PageManager {
     return page.$$eval(
       "aside[class^=filter_nav_filter_nav__] dd:nth-of-type(1) > select > option",
       (elem) => elem.map((x) => x.value),
+    );
+  }
+
+  async getCharactors(): Promise<string[]> {
+    const page = await this.openPlayPage("get charactors");
+    return page.$$eval(
+      "article[class^=winning_rate_winning_rate__] > div[class^=winning_rate_inner__] > ul > li > p[class^=winning_rate_name__]",
+      (elem) => elem.map((x) => x.innerText),
     );
   }
 
