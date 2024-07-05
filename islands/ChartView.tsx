@@ -12,7 +12,7 @@ export default function ChartView({ chartData }: ChartViewProps) {
   }
 
   return (
-    <div class="my-[10px]">
+    <div class="my-2 bg-white p-6 rounded-xl shadow-lg">
       <div class="mx-auto">勝率</div>
       <FreshChart
         type="line"

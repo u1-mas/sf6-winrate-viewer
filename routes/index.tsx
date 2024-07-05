@@ -5,7 +5,10 @@ import Viewer, { ChartViewProps } from "../islands/ChartView.tsx";
 import { getKvData } from "../services/kv.ts";
 
 export default async function Home() {
-  const acts = (await getKvData<string[]>(["acts"])).value ?? [];
+  const acts =
+    (await getKvData<number[]>(["acts"])).value?.map((x) =>
+      x === -1 ? "累計" : `act:${x}`
+    ) ?? [];
   const charactors =
     (await getKvData<string[]>(["charactors"])).value?.map((x) =>
       x.toLowerCase()

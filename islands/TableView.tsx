@@ -11,7 +11,7 @@ export default function TableView(
   }
   console.log({ tableData: tableData.value });
   return (
-    <div className="my-[10px]">
+    <div className="my-2  bg-white p-6 rounded-xl shadow-lg">
       <div className="my-[10px]">
         総対戦数 / 総合勝率 (前日からの変化率) / 日別対戦数 (勝 : 負)
       </div>
