@@ -42,15 +42,15 @@ export default function Filters(
   });
 
   return (
-    <>
-      <div class="flex">
-        <label htmlFor="charactor">
-          使用キャラクター:
+    <div class="flex my-2">
+      <div class="flex flex-col min-w-20">
+        <label htmlFor="charactor" class="font-medium text-sm text-stone-600">
+          キャラクター
         </label>
         <select
           name="charactor"
           id="charactor"
-          class="border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-1.5"
+          class="p-2 mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50"
           onChange={(e) => {
             charactor.value = e.currentTarget.value;
             console.log(`charactor change: ${charactor.value}`);
@@ -66,8 +66,10 @@ export default function Filters(
           ))}
         </select>
       </div>
-      <div class="flex">
-        <label htmlFor="act">Act:</label>
+      <div className="flex flex-col mx-2 min-w-20">
+        <label htmlFor="act" class="font-medium text-sm text-stone-600">
+          Act
+        </label>
         <select
           name="act"
           id="act"
@@ -75,11 +77,11 @@ export default function Filters(
             act.value = e.currentTarget.value;
             console.log("act change:", act.value);
           }}
-          class="border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-1.5"
+          class="p-2 mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50"
         >
           {acts.map((a) => <option value={a}>{a}</option>)}
         </select>
       </div>
-    </>
+    </div>
   );
 }

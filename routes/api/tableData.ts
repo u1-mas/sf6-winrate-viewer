@@ -17,6 +17,11 @@ export const handler = async (
   const list = await Array.fromAsync(kv.list<WinrateDataByOppronentCharactor>({
     prefix: [charactor, act],
   }));
+
+  console.log({ act, charactor, list });
+  if (list.length === 0) {
+    return new Response(JSON.stringify({ error: "Not found data." }));
+  }
   const charactors = Object.keys(list[list.length - 1].value).sort().filter((
     x,
   ) => x !== "all");
