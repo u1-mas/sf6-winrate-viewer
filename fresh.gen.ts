@@ -7,7 +7,6 @@ import * as $_app from "./routes/_app.tsx";
 import * as $_middleware from "./routes/_middleware.ts";
 import * as $api_chartData from "./routes/api/chartData.ts";
 import * as $api_tableData from "./routes/api/tableData.ts";
-import * as $api_updateHistory from "./routes/api/updateHistory.ts";
 import * as $index from "./routes/index.tsx";
 import * as $ChartView from "./islands/ChartView.tsx";
 import * as $Filters from "./islands/Filters.tsx";
@@ -22,7 +21,6 @@ const manifest = {
     "./routes/_middleware.ts": $_middleware,
     "./routes/api/chartData.ts": $api_chartData,
     "./routes/api/tableData.ts": $api_tableData,
-    "./routes/api/updateHistory.ts": $api_updateHistory,
     "./routes/index.tsx": $index,
   },
   islands: {
