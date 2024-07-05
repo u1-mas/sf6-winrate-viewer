@@ -34,36 +34,15 @@ export const createWinrateData = async () => {
     x.replaceAll(" ", "_")
   );
   await setKvData(["charactors"], charactors);
-  try {
-    for (let index = 0; index < retries; index++) {
-      try {
-        const acts = (await manager.getActs()).map((x) => Number.parseInt(x))
-          .sort((a, b) => b - a);
-        if (
-          acts.length >
-            ((await getKvData<string[]>(["acts"])).value?.length ?? 0)
-        ) {
-          await setKvData(["acts"], acts);
-          return manager.createWinrateData(acts[0], acts[1]);
-        } else {
-          return manager.createWinrateData(acts[0]);
-        }
-      } catch (err) {
-        if (err instanceof Error) {
-          if (err.message === "Navigating frame was detached") {
-            console.log(err.message);
-            Deno.exit(0);
-          }
-        }
-        if (index === retries - 1) {
-          throw err;
-        }
-        console.log("Throw error. Retry: ", index);
-      }
-    }
-  } finally {
-    await manager.close();
-  }
+  const acts = (await manager.getActs()).map((x) => Number.parseInt(x))
+    .sort((a, b) => b - a);
+  const beforeActs = (await getKvData<string[]>(["acts"])).value ?? [];
+  const wrData = acts.length > beforeActs.length
+    ? await manager.createWinrateData(acts[0], acts[1])
+    : await manager.createWinrateData(acts[0]);
+  await setKvData(["acts"], acts);
+  await manager.close();
+  return wrData;
 };
 
 export const saveToDatabase = async (winrateData: WinrateData) => {

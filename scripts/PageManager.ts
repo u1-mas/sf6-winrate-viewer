@@ -30,17 +30,17 @@ export class PageManager {
     if (Deno.env.get("CI") === "true") {
       browser = await puppeteer.launch({
         slowMo: 100,
+        headless: true,
       });
       page = await browser.newPage();
       page.setDefaultNavigationTimeout(100000);
       page.setDefaultTimeout(100000);
     } else {
       browser = await puppeteer.launch({
-        headless: true,
-        // devtools: true,
-        slowMo: 100,
+        headless: false,
+        devtools: true,
         dumpio: true,
-        args: ["--disable-gpu"],
+        slowMo: 100,
       });
       page = await browser.newPage();
     }
@@ -145,6 +145,7 @@ export class PageManager {
   }
 
   private async openPlayPage(purpose: string) {
+    console.log("open play page for ", purpose + ".");
     const newPage = await this.browser.newPage();
     console.log("opened play page.");
     newPage.setDefaultTimeout(100000);
