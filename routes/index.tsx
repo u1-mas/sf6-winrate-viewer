@@ -5,8 +5,6 @@ import Viewer, { ChartViewProps } from "../islands/ChartView.tsx";
 import UpdateHistory from "../islands/UpdateHistory.tsx";
 
 export default function Home() {
-  const charactor = useSignal("luke");
-  const act = useSignal("");
   const tableData = useSignal<string[][] | null>(null);
   const chartData: ChartViewProps["chartData"] = useSignal(null);
   return (
@@ -14,8 +12,6 @@ export default function Home() {
       <div className="container mx-auto">
         <UpdateHistory />
         <Filters
-          charactor={charactor}
-          act={act}
           tableData={tableData}
           chartData={chartData}
         />

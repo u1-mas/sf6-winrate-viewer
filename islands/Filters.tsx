@@ -4,33 +4,31 @@ import ky from "ky";
 import { ChartViewProps } from "../islands/ChartView.tsx";
 
 type FiltersProps = {
-  charactor: Signal<string>;
-  act: Signal<string>;
   tableData: Signal<string[][] | null>;
   chartData: ChartViewProps["chartData"];
 };
 export default function Filters(
-  { charactor, act, tableData, chartData }: FiltersProps,
+  { tableData, chartData }: FiltersProps,
 ) {
+  const act = useSignal<string>("");
+  const acts = useSignal<string[]>([]);
+  const charactor = useSignal<string>("luke");
   const charactors = useSignal<string[]>([]);
   useEffect(() => {
     (async () => {
       console.log("fetch charactor");
       const resp = await ky.get("/api/charactors");
-      const json: string[] = await resp.json();
+      const json = await resp.json<string[]>();
       charactors.value = json.sort();
     })();
-  }, [charactors]);
-
-  const acts = [
-    "act:4",
-    "act:3",
-    "act:2",
-    "act:1",
-    "act:0",
-    "累計",
-  ];
-  act.value = acts[0];
+    (async () => {
+      console.log("fetch acts");
+      const resp = await ky.get("/api/acts");
+      const json = await resp.json<string[]>();
+      acts.value = json;
+      act.value = acts.value[0];
+    })();
+  }, []);
 
   useSignalEffect(() => {
     (async () => {
@@ -99,7 +97,7 @@ export default function Filters(
           }}
           class="border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-1.5"
         >
-          {acts.map((a) => <option value={a}>{a}</option>)}
+          {acts.value.map((a) => <option value={a}>{a}</option>)}
         </select>
       </div>
     </>

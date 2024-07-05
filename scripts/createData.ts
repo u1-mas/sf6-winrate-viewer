@@ -1,5 +1,6 @@
 /// <reference lib="deno.unstable" />
 
+import { getKvData, openAppKv, setKvData } from "../services/kv.ts";
 import { PageManager } from "./PageManager.ts";
 import { WinrateData } from "./WinrateData.ts";
 
@@ -15,29 +16,55 @@ export const createWinrateData = async () => {
     return;
   }
 
-  for (let index = 0; index < retries; index++) {
-    try {
-      // webからjsonにする
-      const manager = await PageManager.build();
-      await manager.transitionPlayPage(email, password);
-      return await manager.createWinrateData();
-    } catch (err) {
-      if (err instanceof Error) {
-        if (err.message === "Navigating frame was detached") {
-          console.log(err.message);
-          Deno.exit(0);
+  const buildManager = () => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        return PageManager.build(email, password);
+      } catch (error) {
+        if (i === retries - 1) {
+          throw error;
         }
-      }
-      console.log("Throw error. Retry: ", index);
-      if (index === retries - 1) {
-        throw err;
+
+        console.log("Throw error. Retry: ", i);
       }
     }
+  };
+  const manager = await buildManager()!;
+  try {
+    for (let index = 0; index < retries; index++) {
+      try {
+        // webからjsonにする
+        const acts = (await manager.getActs()).map((x) => Number.parseInt(x))
+          .sort((a, b) => b - a);
+        if (
+          acts.length >
+            ((await getKvData<string[]>(["acts"])).value?.length ?? 0)
+        ) {
+          await setKvData(["acts"], acts);
+          return manager.createWinrateData(acts[0], acts[1]);
+        } else {
+          return manager.createWinrateData(acts[0]);
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          if (err.message === "Navigating frame was detached") {
+            console.log(err.message);
+            Deno.exit(0);
+          }
+        }
+        if (index === retries - 1) {
+          throw err;
+        }
+        console.log("Throw error. Retry: ", index);
+      }
+    }
+  } finally {
+    await manager.close();
   }
 };
 
 export const saveToDatabase = async (winrateData: WinrateData) => {
-  const kv = await Deno.openKv(Deno.env.get("DENO_KV_URL"));
+  const kv = await openAppKv();
   const date = Object.keys(winrateData)[0];
   const byPlayerCharactor = winrateData[date];
   const playerCharactors = Object.keys(byPlayerCharactor);
@@ -49,7 +76,6 @@ export const saveToDatabase = async (winrateData: WinrateData) => {
       await kv.set([playerCharactor, act.toLowerCase(), date], byOpponents);
     }
   }
-  console.log(await kv.set(["update_history"], new Date()));
 };
 
 export const createData = async () => {

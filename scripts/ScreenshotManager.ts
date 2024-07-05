@@ -3,19 +3,21 @@ import { join, resolve } from "@std/path";
 
 export class ScreenshotManager {
   snapshotDirPath: string = "snapshots";
-  page: Page;
   ssNumber: number = 0;
-  constructor(page: Page) {
-    this.page = page;
+  constructor() {
     Deno.mkdirSync(this.snapshotDirPath, { recursive: true });
   }
 
-  async takeScreenShot(prefix: string = "", withHtml: boolean = false) {
+  async takeScreenShot(
+    page: Page,
+    prefix: string = "",
+    withHtml: boolean = false,
+  ) {
     const filename = join(
       this.snapshotDirPath,
       prefix === "" ? `${this.ssNumber++}` : `${this.ssNumber++}_${prefix}`,
     ).replaceAll(":", "_");
-    await this.page.screenshot({
+    await page.screenshot({
       fullPage: true,
       path: resolve(filename + ".png"),
     });
@@ -25,7 +27,7 @@ export class ScreenshotManager {
       if (withHtml) {
         await Deno.writeTextFile(
           resolve(filename + ".html"),
-          await this.page.content(),
+          await page.content(),
         );
         console.log("Html Save:", resolve(filename, ".html"));
       }
