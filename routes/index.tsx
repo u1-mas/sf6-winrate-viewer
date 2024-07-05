@@ -10,7 +10,7 @@ export default async function Home() {
     (await getKvData<string[]>(["charactors"])).value?.map((x) =>
       x.toLowerCase()
     ) ?? [];
-  const history = (await getKvData<string>(["update_history"])).value;
+  const history = (await getKvData<Date>(["update_history"])).value;
   console.log({ history });
 
   const tableData = signal<string[][] | null>(null);
@@ -18,7 +18,7 @@ export default async function Home() {
   return (
     <div class="min-h-screen px-4 py-8 min-w-screen bg-[#e7f3c7]">
       <div className="container mx-auto">
-        <p>updated: {history}</p>
+        <p>updated: {history?.toISOString()}</p>
         <Filters
           acts={acts}
           charactors={charactors}
