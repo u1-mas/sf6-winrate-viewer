@@ -168,6 +168,14 @@ export class PageManager {
     );
   }
 
+  async getCharactors(): Promise<string[]> {
+    const page = await this.openPlayPage("get charactors");
+    return page.$$eval(
+      "article[class^=winning_rate_winning_rate__] > div[class^=winning_rate_inner__] > ul > li > p[class^=winning_rate_name__]",
+      (elem) => elem.map((x) => x.innerText),
+    );
+  }
+
   async createWinrateData(...targetActs: number[]): Promise<WinrateData> {
     console.log("target act: ", targetActs);
 

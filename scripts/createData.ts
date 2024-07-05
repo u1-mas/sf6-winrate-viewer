@@ -30,10 +30,13 @@ export const createWinrateData = async () => {
     }
   };
   const manager = await buildManager()!;
+  const charactors = (await manager.getCharactors()).map((x) =>
+    x.replaceAll(" ", "_")
+  );
+  await setKvData(["charactors"], charactors);
   try {
     for (let index = 0; index < retries; index++) {
       try {
-        // webからjsonにする
         const acts = (await manager.getActs()).map((x) => Number.parseInt(x))
           .sort((a, b) => b - a);
         if (
