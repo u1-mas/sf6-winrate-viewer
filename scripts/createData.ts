@@ -37,9 +37,23 @@ export const createWinrateData = async () => {
   const acts = (await manager.getActs()).map((x) => Number.parseInt(x))
     .sort((a, b) => b - a);
   const beforeActs = (await getKvData<string[]>(["acts"])).value ?? [];
-  const wrData = acts.length > beforeActs.length
-    ? await manager.createWinrateData(acts[0], acts[1])
-    : await manager.createWinrateData(acts[0]);
+  const buildWrData = async () => {
+    const func = () =>
+      acts.length > beforeActs.length
+        ? manager.createWinrateData(acts[0], acts[1])
+        : manager.createWinrateData(acts[0]);
+    for (let i = 0; i < retries; i++) {
+      try {
+        return await func();
+      } catch (error) {
+        if (i === retries - 1) {
+          throw error;
+        }
+        console.log("Throw error. Retry.");
+      }
+    }
+  };
+  const wrData = await buildWrData();
   await setKvData(["acts"], acts);
   await manager.close();
   return wrData;
